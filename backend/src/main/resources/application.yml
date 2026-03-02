@@ -1,0 +1,26 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: ai-interview
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: http://localhost:11434
+      model-name: llama3
+      temperature: 0.7
+    embedding-model:
+      base-url: http://localhost:11434
+      model-name: nomic-embed-text
+
+interview:
+  data-path: ./data
+  kb-path: ${interview.data-path}/kb
+  resume-path: ${interview.data-path}/resumes
+  vector-store-path: ${interview.data-path}/vectors/store.json

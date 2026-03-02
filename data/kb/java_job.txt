@@ -1,0 +1,19 @@
+# Java Backend Developer - Job Description
+
+## About the Role
+We are looking for a Senior Java Backend Developer to join our core team. You will be responsible for designing and implementing high-availability, scalable microservices.
+
+## Responsibilities
+- Design and develop robust, scalable, and maintainable backend services using Spring Boot.
+- Implement complex business logic and data processing pipelines.
+- Integrate with various databases (PostgreSQL, Redis) and messaging systems (Kafka).
+- Collaborate with frontend developers to define API contracts.
+- Mentor junior developers and participate in code reviews.
+
+## Requirements
+- 5+ years of experience in Java development.
+- Deep understanding of Spring Framework and Spring Boot.
+- Experience with Microservices architecture and RESTful APIs.
+- Knowledge of SQL and NoSQL databases.
+- Familiarity with Docker, Kubernetes, and CI/CD pipelines.
+- Excellent problem-solving skills and communication.
