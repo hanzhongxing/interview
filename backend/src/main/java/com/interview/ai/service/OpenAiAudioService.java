@@ -28,9 +28,9 @@ public class OpenAiAudioService {
         LlmConfig config = llmConfigService.getActiveConfig(LlmConfig.ModelType.SPEECH)
                 .orElseThrow(() -> new RuntimeException("TTS Model not configured"));
 
-        String json = String.format("{\"model\": \"%s\", \"input\": \"%s\", \"voice\": \"alloy\"}",
-                config.getModelName(), text.replace("\"", "\\\""));
-
+        String json = String.format("{\"model\": \"%s\", \"input\": \"%s\", \"voice\": \"tongtong\",\"response_format\":\"pcm\"}",
+                config.getModelName(), text.replace("\"", "\\\"").replace("\n",""));
+        log.info("tts json:{}",json);
         Request request = new Request.Builder()
                 .url(config.getBaseUrl())
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
