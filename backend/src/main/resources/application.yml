@@ -27,7 +27,7 @@ langchain4j:
 interview:
   mode: ollama # or openai
   mcp-server-url: ${MCP_SERVER_URL:}
-  data-path: ./data
+  data-path: /opt/web/interview/data
   kb-path: ${interview.data-path}/kb
   resume-path: ${interview.data-path}/resumes
   vector-store-path: ${interview.data-path}/vectors/store.json
