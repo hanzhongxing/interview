@@ -2,6 +2,11 @@
   <div class="app-container">
     <header class="header">
       <h1 class="gradient-text">AI Interview Room</h1>
+      <div class="header-actions">
+        <el-button type="primary" circle @click="showSettings">
+          <el-icon><Setting /></el-icon>
+        </el-button>
+      </div>
     </header>
     <main class="main-content">
       <div v-if="!isInterviewStarted" class="setup-room">
@@ -11,22 +16,30 @@
         <InterviewRoom :sessionId="sessionId" :analysis="candidateAnalysis" />
       </div>
     </main>
+    <LlmConfigDialog ref="settingsDialog" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { Setting } from '@element-plus/icons-vue'
 import ResumeUpload from './components/ResumeUpload.vue'
 import InterviewRoom from './components/InterviewRoom.vue'
+import LlmConfigDialog from './components/LlmConfigDialog.vue'
 
 const isInterviewStarted = ref(false)
 const sessionId = ref('')
 const candidateAnalysis = ref('')
+const settingsDialog = ref(null)
 
 const handleStart = (data) => {
   sessionId.value = data.sessionId
   candidateAnalysis.value = data.analysis
   isInterviewStarted.value = true
+}
+
+const showSettings = () => {
+  settingsDialog.value?.show()
 }
 </script>
 
@@ -40,6 +53,15 @@ const handleStart = (data) => {
 .header {
   padding: 20px 40px;
   text-align: center;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-actions {
+  position: absolute;
+  right: 40px;
 }
 
 .main-content {

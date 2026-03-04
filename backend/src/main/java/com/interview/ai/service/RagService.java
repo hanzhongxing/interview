@@ -1,5 +1,6 @@
 package com.interview.ai.service;
 
+import com.interview.ai.model.LlmConfig;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser;
@@ -25,25 +26,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RagService {
 
+    private final LlmConfigService llmConfigService;
+
     @Value("${interview.kb-path}")
     private String kbPath;
 
     @Value("${interview.vector-store-path}")
     private String vectorStorePath;
 
-    @Value("${langchain4j.ollama.chat-model.base-url}")
-    private String ollamaBaseUrl;
-
     private EmbeddingStore<TextSegment> embeddingStore;
     private EmbeddingModel embeddingModel;
 
     @PostConstruct
     public void init() {
-        this.embeddingModel = OllamaEmbeddingModel.builder()
-                .baseUrl(ollamaBaseUrl)
-                .modelName("nomic-embed-text")
-                .build();
-
         Path path = Paths.get(vectorStorePath);
         if (path.toFile().exists()) {
             this.embeddingStore = InMemoryEmbeddingStore.fromFile(path);
@@ -57,14 +52,43 @@ public class RagService {
         loadKnowledgeBase();
     }
 
+    public EmbeddingModel getEmbeddingModel() {
+        if (embeddingModel == null) {
+            embeddingModel = llmConfigService.getActiveConfig(LlmConfig.ModelType.VECTOR)
+                    .map(this::createEmbeddingModel)
+                    .orElseGet(() -> {
+                        log.warn("No active vector model found, using default Ollama embedding model");
+                        return OllamaEmbeddingModel.builder()
+                                .baseUrl("http://localhost:11434")
+                                .modelName("nomic-embed-text")
+                                .build();
+                    });
+        }
+        return embeddingModel;
+    }
+
+    private EmbeddingModel createEmbeddingModel(LlmConfig config) {
+        if (config.getType() == LlmConfig.ConfigType.OPENAI) {
+            return dev.langchain4j.model.openai.OpenAiEmbeddingModel.builder()
+                    .apiKey(config.getApiKey())
+                    .modelName(config.getModelName())
+                    .build();
+        } else {
+            return OllamaEmbeddingModel.builder()
+                    .baseUrl(config.getBaseUrl())
+                    .modelName(config.getModelName() != null ? config.getModelName() : "nomic-embed-text")
+                    .build();
+        }
+    }
+
     public void loadKnowledgeBase() {
         try {
             Path path = Paths.get(kbPath);
             if (path.toFile().exists()) {
                 List<Document> documents = FileSystemDocumentLoader.loadDocuments(path, new ApacheTikaDocumentParser());
-                if(documents!=null&&!documents.isEmpty()) {
+                if (documents != null && !documents.isEmpty()) {
                     EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                            .embeddingModel(embeddingModel)
+                            .embeddingModel(getEmbeddingModel())
                             .embeddingStore(embeddingStore)
                             .build();
                     ingestor.ingest(documents);
@@ -80,7 +104,7 @@ public class RagService {
     public void ingestResume(Path resumePath) {
         Document document = FileSystemDocumentLoader.loadDocument(resumePath, new ApacheTikaDocumentParser());
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                .embeddingModel(embeddingModel)
+                .embeddingModel(getEmbeddingModel())
                 .embeddingStore(embeddingStore)
                 .build();
         ingestor.ingest(document);
@@ -99,7 +123,7 @@ public class RagService {
     public ContentRetriever getContentRetriever() {
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
-                .embeddingModel(embeddingModel)
+                .embeddingModel(getEmbeddingModel())
                 .maxResults(5)
                 .minScore(0.5)
                 .build();
