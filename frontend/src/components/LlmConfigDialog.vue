@@ -159,27 +159,10 @@ const addNewConfig = (modelType) => {
   editVisible.value = true
 }
 
-const editConfig = (row) => {
+const editConfig = async (row) => {
   editForm.value = { ...row }
   editVisible.value = true
-}
-</script>
 
-<style scoped>
-.model-list {
-  padding: 10px 0;
-}
-.add-btn {
-  margin-top: 20px;
-  text-align: right;
-}
-.form-tip {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.5;
-  margin-top: 4px;
-}
-</style>
   try {
     await axios.post('http://localhost:8086/api/llm-configs', editForm.value)
     ElMessage.success('保存成功')
@@ -189,6 +172,7 @@ const editConfig = (row) => {
     ElMessage.error('保存失败')
   }
 }
+
 
 const deleteConfig = async (id) => {
   try {
@@ -209,11 +193,26 @@ defineExpose({
 </script>
 
 <style scoped>
+
 .model-list {
   padding: 10px 0;
 }
 .add-btn {
   margin-top: 20px;
   text-align: right;
+}
+
+.model-list {
+  padding: 10px 0;
+}
+.add-btn {
+  margin-top: 20px;
+  text-align: right;
+}
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.5;
+  margin-top: 4px;
 }
 </style>
