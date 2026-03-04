@@ -67,11 +67,13 @@ public class RagService {
             Path path = Paths.get(kbPath);
             if (path.toFile().exists()) {
                 List<Document> documents = FileSystemDocumentLoader.loadDocuments(path, new ApacheTikaDocumentParser());
-                EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
-                        .embeddingModel(embeddingModel)
-                        .embeddingStore(embeddingStore)
-                        .build();
-                ingestor.ingest(documents);
+                if(documents!=null&&!documents.isEmpty()) {
+                    EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
+                            .embeddingModel(embeddingModel)
+                            .embeddingStore(embeddingStore)
+                            .build();
+                    ingestor.ingest(documents);
+                }
                 saveStore();
                 log.info("Knowledge base loaded and indexed from {}", kbPath);
             }

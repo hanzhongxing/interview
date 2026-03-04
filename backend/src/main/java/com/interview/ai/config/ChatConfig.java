@@ -75,9 +75,9 @@ public class ChatConfig {
 
         if (mcpServerUrl != null && !mcpServerUrl.isEmpty()) {
             try {
-                dev.langchain4j.mcp.client.McpClient mcpClient = new dev.langchain4j.mcp.client.DefaultMcpClient.Builder()
+                dev.langchain4j.mcp.client.McpClient mcpClient =new  dev.langchain4j.mcp.client.DefaultMcpClient.Builder()
                         .transport(new dev.langchain4j.mcp.client.transport.http.HttpMcpTransport.Builder()
-                                .url(mcpServerUrl)
+                                .sseUrl(mcpServerUrl)
                                 .build())
                         .build();
                 builder.tools(mcpClient.listTools());
