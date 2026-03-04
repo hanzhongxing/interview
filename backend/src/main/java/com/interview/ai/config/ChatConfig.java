@@ -12,7 +12,6 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.AiServices;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class ChatConfig {
     private ChatLanguageModel createChatModel(LlmConfig config) {
         return dev.langchain4j.model.openai.OpenAiChatModel.builder()
                 .baseUrl(config.getBaseUrl())
-                .apiKey(config.getApiKey() != null ? config.getApiKey() : "demo")
+                .apiKey(config.getApiKey())
                 .modelName(config.getModelName())
                 .temperature(config.getTemperature() != null ? config.getTemperature() : 0.7)
                 .build();
@@ -50,7 +49,7 @@ public class ChatConfig {
     private dev.langchain4j.model.chat.StreamingChatLanguageModel createStreamingChatModel(LlmConfig config) {
         return dev.langchain4j.model.openai.OpenAiStreamingChatModel.builder()
                 .baseUrl(config.getBaseUrl())
-                .apiKey(config.getApiKey() != null ? config.getApiKey() : "demo")
+                .apiKey(config.getApiKey())
                 .modelName(config.getModelName())
                 .temperature(config.getTemperature() != null ? config.getTemperature() : 0.7)
                 .build();
@@ -83,7 +82,6 @@ public class ChatConfig {
                 log.error("Failed to connect to MCP server: {}", mcpConfig.getName(), e);
             }
         }
-
         return builder.build();
     }
 }
