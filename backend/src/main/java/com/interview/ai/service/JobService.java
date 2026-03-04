@@ -21,7 +21,7 @@ public class JobService {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${interview.data-path:/opt/web/interview/data}")
+    @Value("${interview.jd_path:/opt/web/interview/data/jd}")
     private String dataPath;
 
     private String jobFilePath;

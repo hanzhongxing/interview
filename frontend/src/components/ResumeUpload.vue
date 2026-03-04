@@ -21,8 +21,26 @@
       </el-upload>
     </div>
 
-    <!-- Results Section -->
-    <div v-if="analysis" class="analysis-results">
+    <!-- Match Results / Selection Dialog -->
+    <el-dialog v-model="selectionVisible" title="匹配到多个适合岗位" width="500px">
+      <div class="selection-list">
+        <p>根据您的简历，我们发现了多个适合的职位，请选择您想申请的一个：</p>
+        <el-radio-group v-model="selectedJobId" class="job-radio-group">
+          <el-radio v-for="job in matchedJobs" :key="job.id" :label="job.id" border>
+            {{ job.title }}
+          </el-radio>
+        </el-radio-group>
+      </div>
+      <template #footer>
+        <el-button @click="selectionVisible = false">取消</el-button>
+        <el-button type="primary" :loading="analyzing" @click="confirmSelection" :disabled="!selectedJobId">
+          确认并开始面试
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- Results Section (Optional fallback if user wants to see analysis first, though requirements say auto-start) -->
+    <div v-if="analysis && matchStatus === 'SINGLE_FALLBACK'" class="analysis-results">
       <el-divider>匹配结果</el-divider>
       <div class="match-info">
         <el-tag type="success" size="large">自动匹配职位: {{ matchedJob }}</el-tag>
@@ -40,17 +58,59 @@ import { ref, computed } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { marked } from 'marked'
+import axios from 'axios'
 
 const emit = defineEmits(['start'])
 const analysis = ref('')
 const sessionId = ref('')
 const matchedJob = ref('')
+const matchedJobs = ref([])
+const matchStatus = ref('')
+const fileName = ref('')
+
+const selectionVisible = ref(false)
+const selectedJobId = ref('')
+const analyzing = ref(false)
 
 const handleSuccess = (res) => {
+  fileName.value = res.fileName
   sessionId.value = res.sessionId
-  analysis.value = res.analysis
-  matchedJob.value = res.matchedJob
-  ElMessage.success('简历上传成功并已自动匹配职位')
+  matchStatus.value = res.matchStatus
+
+  if (res.matchStatus === 'SINGLE') {
+    analysis.value = res.analysis
+    matchedJob.value = res.matchedJob
+    ElMessage.success('匹配到岗位：' + res.matchedJob + '，正在进入面试间...')
+    startInterview()
+  } else if (res.matchStatus === 'MULTIPLE') {
+    matchedJobs.value = res.matches
+    selectionVisible.value = true
+  } else if (res.matchStatus === 'NONE') {
+    ElMessage.warning('根据简历未能匹配到岗位')
+  }
+}
+
+const handleError = () => {
+  ElMessage.error('上传失败，请稍后重试')
+}
+
+const confirmSelection = async () => {
+  analyzing.value = true
+  try {
+    const res = await axios.post('/api/interview/select-job', {
+      fileName: fileName.value,
+      jobId: selectedJobId.value
+    })
+    analysis.value = res.data.analysis
+    matchedJob.value = res.data.matchedJob
+    selectionVisible.value = false
+    ElMessage.success('已选择职位，准备开始面试')
+    startInterview()
+  } catch (error) {
+    ElMessage.error('分析失败，请稍后重试')
+  } finally {
+    analyzing.value = false
+  }
 }
 
 const formattedAnalysis = computed(() => {
@@ -85,7 +145,19 @@ const startInterview = () => {
   max-height: 400px;
   overflow-y: auto;
   line-height: 1.6;
-  color: var(--text-primary);
+  color: #303133;
+}
+
+.job-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.job-radio-group :deep(.el-radio) {
+  margin-right: 0;
+  width: 100%;
 }
 
 .start-btn {

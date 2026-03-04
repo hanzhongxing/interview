@@ -11,6 +11,8 @@ spring:
 
 interview:
   data-path: /opt/web/interview/data
+  mcp_path: ${interview.data-path}/mcp
+  jd_path: ${interview.data-path}/jd
   kb-path: ${interview.data-path}/kb
   resume-path: ${interview.data-path}/resumes
   vector-store-path: ${interview.data-path}/vectors/store.json

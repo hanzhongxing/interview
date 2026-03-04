@@ -21,7 +21,7 @@ public class McpConfigService {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${interview.data-path:/opt/web/interview/data}")
+    @Value("${interview.mcp-path:/opt/web/interview/data/mcp}")
     private String dataPath;
 
     private String mcpFilePath;
