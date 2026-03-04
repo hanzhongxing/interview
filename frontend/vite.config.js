@@ -12,6 +12,10 @@ export default defineConfig({
             '/api': {
                 target: 'http://localhost:8086',
                 changeOrigin: true
+            },
+            '/ws-interview': {
+                target: 'http://localhost:8086',
+                ws: true
             }
         }
     }

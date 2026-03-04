@@ -7,8 +7,11 @@ import com.interview.ai.service.McpConfigService;
 import com.interview.ai.service.Interviewer;
 import com.interview.ai.service.RagService;
 import lombok.RequiredArgsConstructor;
+import com.interview.ai.model.lazy.LazyChatLanguageModel;
+import com.interview.ai.model.lazy.LazyStreamingChatLanguageModel;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.service.AiServices;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +28,7 @@ public class ChatConfig {
 
     @Bean
     public ChatLanguageModel chatLanguageModel() {
-        return new com.interview.ai.model.lazy.LazyChatLanguageModel(
+        return new LazyChatLanguageModel(
                 () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
                         .map(this::createChatModel)
                         .orElse(null));
@@ -41,14 +44,14 @@ public class ChatConfig {
     }
 
     @Bean
-    public dev.langchain4j.model.chat.StreamingChatLanguageModel streamingChatLanguageModel() {
-        return new com.interview.ai.model.lazy.LazyStreamingChatLanguageModel(
+    public StreamingChatLanguageModel streamingChatLanguageModel() {
+        return new LazyStreamingChatLanguageModel(
                 () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
                         .map(this::createStreamingChatModel)
                         .orElse(null));
     }
 
-    private dev.langchain4j.model.chat.StreamingChatLanguageModel createStreamingChatModel(LlmConfig config) {
+    private StreamingChatLanguageModel createStreamingChatModel(LlmConfig config) {
         return dev.langchain4j.model.openai.OpenAiStreamingChatModel.builder()
                 .baseUrl(config.getBaseUrl())
                 .apiKey(config.getApiKey())
@@ -59,7 +62,7 @@ public class ChatConfig {
 
     @Bean
     @org.springframework.context.annotation.Lazy
-    public Interviewer interviewer(dev.langchain4j.model.chat.StreamingChatLanguageModel streamingChatModel,
+    public Interviewer interviewer(StreamingChatLanguageModel streamingChatModel,
             RagService ragService) {
         AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
                 .streamingChatLanguageModel(streamingChatModel)

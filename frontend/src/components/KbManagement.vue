@@ -2,7 +2,7 @@
   <div class="management-container">
     <div class="action-bar">
       <el-upload
-        action="http://localhost:8086/api/kb/upload"
+        action="/api/kb/upload"
         :on-success="handleSuccess"
         :on-error="handleError"
         :show-file-list="false"
@@ -33,7 +33,7 @@ const loading = ref(false)
 const fetchFiles = async () => {
   loading.value = true
   try {
-    const res = await axios.get('http://localhost:8086/api/kb/files')
+    const res = await axios.get('/api/kb/files')
     files.value = res.data.map(name => ({ name }))
   } catch (error) {
     ElMessage.error('获取文件列表失败')
@@ -54,7 +54,7 @@ const handleError = () => {
 const handleDelete = async (fileName) => {
   try {
     await ElMessageBox.confirm('确定删除此资料吗？')
-    await axios.delete(`http://localhost:8086/api/kb/files/${fileName}`)
+    await axios.delete(`/api/kb/files/${fileName}`)
     ElMessage.success('删除成功')
     fetchFiles()
   } catch (error) {

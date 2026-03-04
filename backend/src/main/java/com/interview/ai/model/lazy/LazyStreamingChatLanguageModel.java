@@ -4,9 +4,7 @@ import com.interview.ai.exception.ConfigurationMissingException;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
-import dev.langchain4j.model.chat.request.ChatRequest;
-import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
-import dev.langchain4j.model.output.AiMessage;
+import dev.langchain4j.data.message.AiMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,11 +31,6 @@ public class LazyStreamingChatLanguageModel implements StreamingChatLanguageMode
 
     public synchronized void reset() {
         this.delegate = null;
-    }
-
-    @Override
-    public void chat(ChatRequest chatRequest, StreamingChatResponseHandler handler) {
-        getDelegate().chat(chatRequest, handler);
     }
 
     @Override

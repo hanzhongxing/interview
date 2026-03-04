@@ -61,6 +61,9 @@ public class LlmConfigService {
     }
 
     public void saveConfig(LlmConfig config) {
+        if (config.getId() == null || config.getId().isEmpty()) {
+            config.setId(java.util.UUID.randomUUID().toString());
+        }
         try {
             // If this is set to active, deactivate others of the same model type
             if (config.isActive()) {

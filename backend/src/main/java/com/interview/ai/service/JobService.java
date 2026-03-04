@@ -51,6 +51,9 @@ public class JobService {
     }
 
     public void saveJob(Job job) {
+        if (job.getId() == null || job.getId().isEmpty()) {
+            job.setId(java.util.UUID.randomUUID().toString());
+        }
         List<Job> jobs = getAllJobs();
         jobs.removeIf(j -> j.getId().equals(job.getId()));
         jobs.add(job);

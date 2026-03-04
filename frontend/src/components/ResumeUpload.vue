@@ -4,7 +4,7 @@
       <el-upload
         class="resume-uploader"
         drag
-        action="http://localhost:8086/api/interview/upload-resume"
+        action="/api/interview/upload-resume"
         :on-success="handleSuccess"
         :on-error="handleError"
         :limit="1"

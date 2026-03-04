@@ -55,7 +55,7 @@ const editForm = ref({
 const fetchJobs = async () => {
   loading.value = true
   try {
-    const res = await axios.get('http://localhost:8086/api/jobs')
+    const res = await axios.get('/api/jobs')
     jobs.value = res.data
   } catch (error) {
     ElMessage.error('获取职位列表失败')

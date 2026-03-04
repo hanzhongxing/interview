@@ -121,7 +121,7 @@ const vectorConfigs = computed(() => configs.value.filter(c => c.modelType === '
 
 const fetchConfigs = async () => {
   try {
-    const res = await axios.get('http://localhost:8086/api/llm-configs')
+    const res = await axios.get('/api/llm-configs')
     configs.value = res.data
   } catch (error) {
     ElMessage.error('获取配置失败')
@@ -136,7 +136,7 @@ const handleActivate = async (row) => {
     return
   }
   try {
-    await axios.post(`http://localhost:8086/api/llm-configs/${row.id}/activate`)
+    await axios.post(`/api/llm-configs/${row.id}/activate`)
     ElMessage.success('已切换大模型，部分配置需重启服务生效')
     fetchConfigs()
   } catch (error) {
@@ -159,25 +159,36 @@ const addNewConfig = (modelType) => {
   editVisible.value = true
 }
 
-const editConfig = async (row) => {
+const editConfig = (row) => {
   editForm.value = { ...row }
   editVisible.value = true
+}
 
+const saveConfig = async () => {
+  if (!editForm.value.name || !editForm.value.baseUrl || !editForm.value.modelName) {
+    ElMessage.warning('请填写完整必要信息')
+    return
+  }
+  
   try {
-    await axios.post('http://localhost:8086/api/llm-configs', editForm.value)
+    await axios.post('/api/llm-configs', editForm.value)
     ElMessage.success('保存成功')
     editVisible.value = false
     fetchConfigs()
+    // Trigger an event so App.vue can re-check status
+    emit('saved')
   } catch (error) {
     ElMessage.error('保存失败')
   }
 }
 
+const emit = defineEmits(['saved'])
+
 
 const deleteConfig = async (id) => {
   try {
     await ElMessageBox.confirm('确定删除此配置吗？')
-    await axios.delete(`http://localhost:8086/api/llm-configs/${id}`)
+    await axios.delete(`/api/llm-configs/${id}`)
     ElMessage.success('删除成功')
     fetchConfigs()
   } catch (error) {

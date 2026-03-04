@@ -51,6 +51,9 @@ public class McpConfigService {
     }
 
     public void saveConfig(McpConfig config) {
+        if (config.getId() == null || config.getId().isEmpty()) {
+            config.setId(java.util.UUID.randomUUID().toString());
+        }
         List<McpConfig> configs = getAllConfigs();
         configs.removeIf(c -> c.getId().equals(config.getId()));
         configs.add(config);

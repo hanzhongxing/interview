@@ -50,7 +50,7 @@ const editForm = ref({
 const fetchConfigs = async () => {
   loading.value = true
   try {
-    const res = await axios.get('http://localhost:8086/api/mcp-configs')
+    const res = await axios.get('/api/mcp-configs')
     configs.value = res.data
   } catch (error) {
     ElMessage.error('获取 MCP 配置失败')
@@ -75,7 +75,7 @@ const handleSave = async () => {
     return
   }
   try {
-    await axios.post('http://localhost:8086/api/mcp-configs', editForm.value)
+    await axios.post('/api/mcp-configs', editForm.value)
     ElMessage.success('保存成功，需重启服务以加载新工具')
     dialogVisible.value = false
     fetchConfigs()
@@ -87,7 +87,7 @@ const handleSave = async () => {
 const handleDelete = async (id) => {
   try {
     await ElMessageBox.confirm('确定删除此服务配置吗？')
-    await axios.delete(`http://localhost:8086/api/mcp-configs/${id}`)
+    await axios.delete(`/api/mcp-configs/${id}`)
     ElMessage.success('删除成功')
     fetchConfigs()
   } catch (error) {

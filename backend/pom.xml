@@ -73,6 +73,12 @@
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-mcp</artifactId>
 			<version>1.1.0-beta7</version>
+			<exclusions>
+				<exclusion>
+					<groupId>dev.langchain4j</groupId>
+					<artifactId>langchain4j-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

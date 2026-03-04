@@ -113,7 +113,7 @@ const menuTitle = computed(() => {
 
 const checkStatus = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/api/status')
+    const response = await axios.get('/api/status')
     isLlmConfigured.value = response.data.llmConfigured
   } catch (error) {
     console.error('Failed to check system status', error)

@@ -3,10 +3,8 @@ package com.interview.ai.model.lazy;
 import com.interview.ai.exception.ConfigurationMissingException;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.chat.request.ChatRequest;
-import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.output.AiMessage;
+import dev.langchain4j.data.message.AiMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,11 +31,6 @@ public class LazyChatLanguageModel implements ChatLanguageModel {
 
     public synchronized void reset() {
         this.delegate = null;
-    }
-
-    @Override
-    public ChatResponse chat(ChatRequest chatRequest) {
-        return getDelegate().chat(chatRequest);
     }
 
     @Override
