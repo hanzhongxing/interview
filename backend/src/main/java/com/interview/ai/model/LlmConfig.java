@@ -23,6 +23,6 @@ public class LlmConfig {
     private boolean active;
 
     public enum ModelType {
-        CHAT, VECTOR
+        CHAT, VECTOR, SPEECH, TRANSCRIPTION
     }
 }

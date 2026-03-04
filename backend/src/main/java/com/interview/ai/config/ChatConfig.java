@@ -23,66 +23,67 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatConfig {
 
-    private final LlmConfigService llmConfigService;
-    private final McpConfigService mcpConfigService;
+        private final LlmConfigService llmConfigService;
+        private final McpConfigService mcpConfigService;
 
-    @Bean
-    public ChatLanguageModel chatLanguageModel() {
-        return new LazyChatLanguageModel(
-                () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
-                        .map(this::createChatModel)
-                        .orElse(null));
-    }
-
-    private ChatLanguageModel createChatModel(LlmConfig config) {
-        return dev.langchain4j.model.openai.OpenAiChatModel.builder()
-                .baseUrl(config.getBaseUrl())
-                .apiKey(config.getApiKey())
-                .modelName(config.getModelName())
-                .temperature(config.getTemperature() != null ? config.getTemperature() : 0.7)
-                .build();
-    }
-
-    @Bean
-    public StreamingChatLanguageModel streamingChatLanguageModel() {
-        return new LazyStreamingChatLanguageModel(
-                () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
-                        .map(this::createStreamingChatModel)
-                        .orElse(null));
-    }
-
-    private StreamingChatLanguageModel createStreamingChatModel(LlmConfig config) {
-        return dev.langchain4j.model.openai.OpenAiStreamingChatModel.builder()
-                .baseUrl(config.getBaseUrl())
-                .apiKey(config.getApiKey())
-                .modelName(config.getModelName())
-                .temperature(config.getTemperature() != null ? config.getTemperature() : 0.7)
-                .build();
-    }
-
-    @Bean
-    @org.springframework.context.annotation.Lazy
-    public Interviewer interviewer(StreamingChatLanguageModel streamingChatModel,
-            RagService ragService) {
-        AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
-                .streamingChatLanguageModel(streamingChatModel)
-                .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(20))
-                .contentRetriever(ragService.getContentRetriever());
-
-        List<McpConfig> mcpConfigs = mcpConfigService.getAllConfigs();
-        for (McpConfig mcpConfig : mcpConfigs) {
-            try {
-                dev.langchain4j.mcp.client.McpClient mcpClient = new dev.langchain4j.mcp.client.DefaultMcpClient.Builder()
-                        .transport(new dev.langchain4j.mcp.client.transport.http.HttpMcpTransport.Builder()
-                                .sseUrl(mcpConfig.getSseUrl())
-                                .build())
-                        .build();
-                builder.tools(mcpClient.listTools());
-                log.info("MCP tools integrated from {} ({})", mcpConfig.getName(), mcpConfig.getSseUrl());
-            } catch (Exception e) {
-                log.error("Failed to connect to MCP server: {}", mcpConfig.getName(), e);
-            }
+        @Bean
+        public ChatLanguageModel chatLanguageModel() {
+                return new LazyChatLanguageModel(
+                                () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
+                                                .map(this::createChatModel)
+                                                .orElse(null));
         }
-        return builder.build();
-    }
+
+        private ChatLanguageModel createChatModel(LlmConfig config) {
+                return dev.langchain4j.model.openai.OpenAiChatModel.builder()
+                                .baseUrl(config.getBaseUrl())
+                                .apiKey(config.getApiKey())
+                                .modelName(config.getModelName())
+                                .temperature(config.getTemperature() != null ? config.getTemperature() : 0.7)
+                                .build();
+        }
+
+        @Bean
+        public StreamingChatLanguageModel streamingChatLanguageModel() {
+                return new LazyStreamingChatLanguageModel(
+                                () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
+                                                .map(this::createStreamingChatModel)
+                                                .orElse(null));
+        }
+
+        private StreamingChatLanguageModel createStreamingChatModel(LlmConfig config) {
+                return dev.langchain4j.model.openai.OpenAiStreamingChatModel.builder()
+                                .baseUrl(config.getBaseUrl())
+                                .apiKey(config.getApiKey())
+                                .modelName(config.getModelName())
+                                .temperature(config.getTemperature() != null ? config.getTemperature() : 0.7)
+                                .build();
+        }
+
+        @Bean
+        @org.springframework.context.annotation.Lazy
+        public Interviewer interviewer(StreamingChatLanguageModel streamingChatModel,
+                        RagService ragService) {
+                AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
+                                .streamingChatLanguageModel(streamingChatModel)
+                                .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(20))
+                                .contentRetriever(ragService.getContentRetriever());
+
+                List<McpConfig> mcpConfigs = mcpConfigService.getAllConfigs();
+                for (McpConfig mcpConfig : mcpConfigs) {
+                        try {
+                                dev.langchain4j.mcp.client.McpClient mcpClient = new dev.langchain4j.mcp.client.DefaultMcpClient.Builder()
+                                                .transport(new dev.langchain4j.mcp.client.transport.http.HttpMcpTransport.Builder()
+                                                                .sseUrl(mcpConfig.getSseUrl())
+                                                                .build())
+                                                .build();
+                                builder.tools(mcpClient.listTools());
+                                log.info("MCP tools integrated from {} ({})", mcpConfig.getName(),
+                                                mcpConfig.getSseUrl());
+                        } catch (Exception e) {
+                                log.error("Failed to connect to MCP server: {}", mcpConfig.getName(), e);
+                        }
+                }
+                return builder.build();
+        }
 }

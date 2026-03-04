@@ -34,17 +34,14 @@
       </el-tab-pane>
 
       <el-tab-pane label="向量模型" name="VECTOR">
+        <!-- ... existing vector content ... -->
         <div class="model-list">
           <el-table :data="vectorConfigs" style="width: 100%">
             <el-table-column prop="name" label="名称" />
-            <el-table-column prop="type" label="类型" width="100" />
             <el-table-column prop="modelName" label="模型名称" />
             <el-table-column label="启用" width="80">
               <template #default="scope">
-                <el-switch
-                  v-model="scope.row.active"
-                  @change="handleActivate(scope.row)"
-                />
+                <el-switch v-model="scope.row.active" @change="handleActivate(scope.row)" />
               </template>
             </el-table-column>
             <el-table-column label="操作" width="120">
@@ -56,6 +53,52 @@
           </el-table>
           <div class="add-btn">
             <el-button type="primary" @click="addNewConfig('VECTOR')">添加向量模型</el-button>
+          </div>
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane label="语音合成 (TTS)" name="SPEECH">
+        <div class="model-list">
+          <el-table :data="speechConfigs" style="width: 100%">
+            <el-table-column prop="name" label="名称" />
+            <el-table-column prop="modelName" label="模型名称" />
+            <el-table-column label="启用" width="80">
+              <template #default="scope">
+                <el-switch v-model="scope.row.active" @change="handleActivate(scope.row)" />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="120">
+              <template #default="scope">
+                <el-button link type="primary" @click="editConfig(scope.row)">编辑</el-button>
+                <el-button link type="danger" @click="deleteConfig(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="add-btn">
+            <el-button type="primary" @click="addNewConfig('SPEECH')">添加语音合成模型</el-button>
+          </div>
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane label="语音转文字 (STT)" name="TRANSCRIPTION">
+        <div class="model-list">
+          <el-table :data="transcriptionConfigs" style="width: 100%">
+            <el-table-column prop="name" label="名称" />
+            <el-table-column prop="modelName" label="模型名称" />
+            <el-table-column label="启用" width="80">
+              <template #default="scope">
+                <el-switch v-model="scope.row.active" @change="handleActivate(scope.row)" />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="120">
+              <template #default="scope">
+                <el-button link type="primary" @click="editConfig(scope.row)">编辑</el-button>
+                <el-button link type="danger" @click="deleteConfig(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="add-btn">
+            <el-button type="primary" @click="addNewConfig('TRANSCRIPTION')">添加语音识别模型</el-button>
           </div>
         </div>
       </el-tab-pane>
@@ -118,6 +161,8 @@ const editForm = ref({
 
 const chatConfigs = computed(() => configs.value.filter(c => c.modelType === 'CHAT'))
 const vectorConfigs = computed(() => configs.value.filter(c => c.modelType === 'VECTOR'))
+const speechConfigs = computed(() => configs.value.filter(c => c.modelType === 'SPEECH'))
+const transcriptionConfigs = computed(() => configs.value.filter(c => c.modelType === 'TRANSCRIPTION'))
 
 const fetchConfigs = async () => {
   try {

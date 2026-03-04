@@ -32,14 +32,27 @@
       </div>
       
       <div class="chat-input">
+        <div class="input-actions" v-if="!isAIThinking">
+          <el-button 
+            :type="isRecording ? 'danger' : 'primary'" 
+            circle
+            @mousedown="startRecording"
+            @mouseup="stopRecording"
+            @mouseleave="stopRecording"
+            v-if="supportVOice"
+          >
+            <el-icon><microphone /></el-icon>
+          </el-button>
+          <span class="recording-hint" v-if="isRecording">松开结束...</span>
+        </div>
         <el-input
           v-model="userInput"
-          placeholder="Speak your mind..."
+          placeholder="既然来了，就聊两句吧..."
           @keyup.enter="sendMessage"
           :disabled="isAIThinking"
         >
           <template #append>
-            <el-button @click="sendMessage" :loading="isAIThinking">Send</el-button>
+            <el-button @click="sendMessage" :loading="isAIThinking">发送</el-button>
           </template>
         </el-input>
       </div>
@@ -51,6 +64,9 @@
 import { ref, onMounted, nextTick } from 'vue'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
+import { Microphone } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import axios from 'axios'
 
 const props = defineProps({
   sessionId: String,
@@ -58,13 +74,19 @@ const props = defineProps({
 })
 
 const messages = ref([
-  { role: 'assistant', content: 'Connecting to AI Interviewer...' }
+  { role: 'assistant', content: '正在连接面试官...' }
 ])
 const userInput = ref('')
 const isAIThinking = ref(false)
 const isSpeaking = ref(false)
 const status = ref({ type: 'online', text: 'Initializing...' })
 const messageContainer = ref(null)
+
+const supportVOice = ref(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia))
+const isRecording = ref(false)
+let mediaRecorder = null
+let audioChunks = []
+let audioPlayer = null
 
 let stompClient = null
 
@@ -100,11 +122,9 @@ const sendInitialMessage = () => {
 const handleIncomingContent = (data) => {
   if (data.type === 'delta') {
     isAIThinking.value = false
-    isSpeaking.value = true
     const lastMsg = messages.value[messages.value.length - 1]
     if (lastMsg && lastMsg.role === 'assistant') {
-      // If it was just the "Connecting..." message, replace it
-      if (lastMsg.content.includes('Connecting')) {
+      if (lastMsg.content.includes('正在连接')) {
           lastMsg.content = data.content
       } else {
           lastMsg.content += data.content
@@ -114,7 +134,10 @@ const handleIncomingContent = (data) => {
     }
     scrollToBottom()
   } else if (data.type === 'complete') {
-    isSpeaking.value = false
+    const lastMsg = messages.value[messages.value.length - 1]
+    if (lastMsg && lastMsg.role === 'assistant') {
+      playAIResponse(lastMsg.content)
+    }
   } else if (data.type === 'error') {
     isAIThinking.value = false
     isSpeaking.value = false
@@ -122,8 +145,78 @@ const handleIncomingContent = (data) => {
   }
 }
 
+const playAIResponse = async (text) => {
+  if (!text) return
+  try {
+    const response = await axios.post('/api/audio/speech', { text }, { responseType: 'blob' })
+    const url = URL.createObjectURL(response.data)
+    
+    if (audioPlayer) {
+      audioPlayer.pause()
+    }
+    
+    audioPlayer = new Audio(url)
+    audioPlayer.onplay = () => { isSpeaking.value = true }
+    audioPlayer.onended = () => { isSpeaking.value = false }
+    audioPlayer.onerror = () => { isSpeaking.value = false }
+    audioPlayer.play()
+  } catch (error) {
+    console.error('Failed to play AI response', error)
+  }
+}
+
+const startRecording = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorder = new MediaRecorder(stream)
+    audioChunks = []
+    
+    mediaRecorder.ondataavailable = (event) => {
+      audioChunks.push(event.data)
+    }
+    
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+      transcribeAudio(audioBlob)
+      stream.getTracks().forEach(track => track.stop())
+    }
+    
+    mediaRecorder.start()
+    isRecording.value = true
+  } catch (err) {
+    ElMessage.error('无法访问麦克风')
+  }
+}
+
+const stopRecording = () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop()
+    isRecording.value = false
+  }
+}
+
+const transcribeAudio = async (blob) => {
+  const formData = new FormData()
+  formData.append('file', blob, 'voice.webm')
+  
+  isAIThinking.value = true
+  try {
+    const res = await axios.post('/api/audio/transcribe', formData)
+    if (res.data.text) {
+      userInput.value = res.data.text
+      sendMessage()
+    } else {
+      ElMessage.warning('未能识别语音内容')
+    }
+  } catch (error) {
+    ElMessage.error('语音识别失败')
+  } finally {
+    isAIThinking.value = false
+  }
+}
+
 const sendMessage = () => {
-  if (!userInput.value.trim() || isAIThinking.value || isSpeaking.value) return
+  if (!userInput.value.trim() || isAIThinking.value) return
   
   const msg = userInput.value
   messages.value.push({ role: 'user', content: msg })
@@ -282,5 +375,25 @@ const scrollToBottom = async () => {
 
 .chat-input {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recording-hint {
+  font-size: 14px;
+  color: #ef4444;
+  animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
 }
 </style>
