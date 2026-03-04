@@ -51,10 +51,11 @@ public class InterviewController {
             // Ingest into RAG
             ragService.ingestResume(path);
 
+            log.info("before matchedJobs: {}", "done");
             // Match Jobs
             List<Job> allJobs = jobService.getAllJobs();
             List<Job> matchedJobs = analysisService.matchJobs(path, allJobs);
-
+            log.info("after matchedJobs: {}", "done");
             Map<String, Object> response = new HashMap<>();
             response.put("fileName", fileName);
             response.put("sessionId", UUID.randomUUID().toString());
