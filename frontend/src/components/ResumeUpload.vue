@@ -1,5 +1,5 @@
 <template>
-  <div class="resume-upload-card">
+  <div class="resume-upload-card" v-loading="isAnalyzing" element-loading-text="正在分析简历并匹配岗位，请稍候...">
     <div class="upload-section">
       <el-upload
         class="resume-uploader"
@@ -7,7 +7,9 @@
         action="/api/interview/upload-resume"
         :on-success="handleSuccess"
         :on-error="handleError"
+        :before-upload="handleBeforeUpload"
         :limit="1"
+        :show-file-list="false"
       >
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         <div class="el-upload__text">
@@ -71,8 +73,15 @@ const fileName = ref('')
 const selectionVisible = ref(false)
 const selectedJobId = ref('')
 const analyzing = ref(false)
+const isAnalyzing = ref(false)
+
+const handleBeforeUpload = () => {
+  isAnalyzing.value = true
+  return true
+}
 
 const handleSuccess = (res) => {
+  isAnalyzing.value = false
   fileName.value = res.fileName
   sessionId.value = res.sessionId
   matchStatus.value = res.matchStatus
@@ -91,6 +100,7 @@ const handleSuccess = (res) => {
 }
 
 const handleError = () => {
+  isAnalyzing.value = false
   ElMessage.error('上传失败，请稍后重试')
 }
 
