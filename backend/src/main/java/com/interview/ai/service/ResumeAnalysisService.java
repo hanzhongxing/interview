@@ -56,7 +56,7 @@ public class ResumeAnalysisService {
                                                 "1. 如果有匹配的岗位，请按匹配度从高到低返回岗位的ID，多个ID之间用英文逗号分隔。\n" +
                                                 "2. 如果完全没有匹配的岗位，请只返回字符串 \"NONE\"。\n" +
                                                 "不要返回任何其他文字。",
-                                jobsInfo.toString(), resumeText);
+                                jobsInfo,resumeText);
 
                 String response = chatModel.generate(prompt).trim();
                 log.info("Job matching response: {}", response);

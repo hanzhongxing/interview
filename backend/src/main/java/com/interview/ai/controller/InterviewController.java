@@ -42,7 +42,7 @@ public class InterviewController {
         }
 
         try {
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path path = Paths.get(resumePath, fileName);
             Files.createDirectories(path.getParent());
             Files.copy(file.getInputStream(), path);
