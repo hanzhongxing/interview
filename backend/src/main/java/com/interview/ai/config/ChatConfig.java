@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
 import java.time.Duration;
 
 @Configuration
+@Slf4j
 public class ChatConfig {
 
     @Value("${langchain4j.ollama.chat-model.base-url}")
@@ -22,8 +24,40 @@ public class ChatConfig {
     @Value("${langchain4j.ollama.chat-model.model-name}")
     private String modelName;
 
+    @Value("${interview.mode:ollama}")
+    private String interviewMode;
+
+    @Value("${langchain4j.open-ai.chat-model.api-key:}")
+    private String openAiApiKey;
+
+    @Value("${langchain4j.open-ai.chat-model.model-name:gpt-4o}")
+    private String openAiModelName;
+
+    @Value("${interview.mcp-server-url:}")
+    private String mcpServerUrl;
+
     @Bean
-    public OllamaStreamingChatModel streamingChatModel() {
+    public ChatLanguageModel chatLanguageModel() {
+        if ("openai".equalsIgnoreCase(interviewMode)) {
+            return dev.langchain4j.model.openai.OpenAiChatModel.builder()
+                    .apiKey(openAiApiKey)
+                    .modelName(openAiModelName)
+                    .build();
+        }
+        return OllamaChatModel.builder()
+                .baseUrl(ollamaBaseUrl)
+                .modelName(modelName)
+                .build();
+    }
+
+    @Bean
+    public dev.langchain4j.model.chat.StreamingChatLanguageModel streamingChatLanguageModel() {
+        if ("openai".equalsIgnoreCase(interviewMode)) {
+            return dev.langchain4j.model.openai.OpenAiStreamingChatModel.builder()
+                    .apiKey(openAiApiKey)
+                    .modelName(openAiModelName)
+                    .build();
+        }
         return OllamaStreamingChatModel.builder()
                 .baseUrl(ollamaBaseUrl)
                 .modelName(modelName)
@@ -32,11 +66,27 @@ public class ChatConfig {
     }
 
     @Bean
-    public Interviewer interviewer(OllamaStreamingChatModel streamingChatModel, RagService ragService) {
-        return AiServices.builder(Interviewer.class)
+    public Interviewer interviewer(dev.langchain4j.model.chat.StreamingChatLanguageModel streamingChatModel,
+            RagService ragService) {
+        AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
                 .streamingChatLanguageModel(streamingChatModel)
                 .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(20))
-                .contentRetriever(ragService.getContentRetriever())
-                .build();
+                .contentRetriever(ragService.getContentRetriever());
+
+        if (mcpServerUrl != null && !mcpServerUrl.isEmpty()) {
+            try {
+                dev.langchain4j.mcp.client.McpClient mcpClient = new dev.langchain4j.mcp.client.DefaultMcpClient.Builder()
+                        .transport(new dev.langchain4j.mcp.client.transport.http.HttpMcpTransport.Builder()
+                                .url(mcpServerUrl)
+                                .build())
+                        .build();
+                builder.tools(mcpClient.listTools());
+                log.info("MCP tools integrated from {}", mcpServerUrl);
+            } catch (Exception e) {
+                log.error("Failed to connect to MCP server", e);
+            }
+        }
+
+        return builder.build();
     }
 }

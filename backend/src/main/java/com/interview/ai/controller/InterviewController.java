@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.UUID;
+import com.interview.ai.service.ResumeAnalysisService;
 
 @RestController
 @RequestMapping("/api/interview")
@@ -22,28 +24,40 @@ import java.util.UUID;
 public class InterviewController {
 
     private final RagService ragService;
+    private final ResumeAnalysisService analysisService;
 
     @Value("${interview.resume-path}")
     private String resumePath;
 
     @PostMapping("/upload-resume")
-    public ResponseEntity<String> uploadResume(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> uploadResume(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "jd", required = false) String jd) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty");
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
 
         try {
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Path path = Paths.get(resumePath, fileName);
+            Files.createDirectories(path.getParent());
             Files.copy(file.getInputStream(), path);
 
             // Ingest into RAG
             ragService.ingestResume(path);
 
-            return ResponseEntity.ok(fileName);
+            // Perform Analysis
+            String effectiveJd = (jd != null && !jd.isEmpty()) ? jd : "默认通用开发岗位需求";
+            String analysisResults = analysisService.analyzeResume(path, effectiveJd);
+
+            return ResponseEntity.ok(Map.of(
+                    "sessionId", UUID.randomUUID().toString(),
+                    "fileName", fileName,
+                    "analysis", analysisResults));
         } catch (IOException e) {
             log.error("Failed to upload resume", e);
-            return ResponseEntity.internalServerError().body("Failed to upload resume: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Failed to upload resume: " + e.getMessage()));
         }
     }
 }

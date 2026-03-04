@@ -5,10 +5,10 @@
     </header>
     <main class="main-content">
       <div v-if="!isInterviewStarted" class="setup-room">
-        <ResumeUpload @uploaded="handleUploaded" />
+        <ResumeUpload @start="handleStart" />
       </div>
       <div v-else class="interview-room">
-        <InterviewRoom :sessionId="sessionId" />
+        <InterviewRoom :sessionId="sessionId" :analysis="candidateAnalysis" />
       </div>
     </main>
   </div>
@@ -21,9 +21,11 @@ import InterviewRoom from './components/InterviewRoom.vue'
 
 const isInterviewStarted = ref(false)
 const sessionId = ref('')
+const candidateAnalysis = ref('')
 
-const handleUploaded = (name) => {
-  sessionId.value = name // Using the filename as session ID for simplicity
+const handleStart = (data) => {
+  sessionId.value = data.sessionId
+  candidateAnalysis.value = data.analysis
   isInterviewStarted.value = true
 }
 </script>

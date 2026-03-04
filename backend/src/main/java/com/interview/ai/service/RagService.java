@@ -44,11 +44,19 @@ public class RagService {
 
     @PostConstruct
     public void init() {
-        this.embeddingStore = new InMemoryEmbeddingStore<>();
         this.embeddingModel = OllamaEmbeddingModel.builder()
                 .baseUrl(ollamaBaseUrl)
                 .modelName("nomic-embed-text")
                 .build();
+
+        Path path = Paths.get(vectorStorePath);
+        if (path.toFile().exists()) {
+            this.embeddingStore = InMemoryEmbeddingStore.fromFile(path);
+            log.info("Vector store loaded from {}", vectorStorePath);
+        } else {
+            this.embeddingStore = new InMemoryEmbeddingStore<>();
+            log.info("New vector store initialized");
+        }
 
         // Load KB if available
         loadKnowledgeBase();
@@ -64,7 +72,8 @@ public class RagService {
                         .embeddingStore(embeddingStore)
                         .build();
                 ingestor.ingest(documents);
-                log.info("Knowledge base loaded from {}", kbPath);
+                saveStore();
+                log.info("Knowledge base loaded and indexed from {}", kbPath);
             }
         } catch (Exception e) {
             log.error("Failed to load knowledge base", e);
@@ -78,15 +87,24 @@ public class RagService {
                 .embeddingStore(embeddingStore)
                 .build();
         ingestor.ingest(document);
-        log.info("Resume ingested: {}", resumePath.getFileName());
+        saveStore();
+        log.info("Resume ingested and indexed: {}", resumePath.getFileName());
+    }
+
+    private void saveStore() {
+        try {
+            ((InMemoryEmbeddingStore<TextSegment>) embeddingStore).serializeToFile(vectorStorePath);
+        } catch (Exception e) {
+            log.error("Failed to save vector store", e);
+        }
     }
 
     public ContentRetriever getContentRetriever() {
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
                 .embeddingModel(embeddingModel)
-                .maxResults(3)
-                .minScore(0.6)
+                .maxResults(5)
+                .minScore(0.5)
                 .build();
     }
 }
