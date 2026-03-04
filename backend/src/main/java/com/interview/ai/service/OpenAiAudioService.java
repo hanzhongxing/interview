@@ -32,7 +32,7 @@ public class OpenAiAudioService {
                 config.getModelName(), text.replace("\"", "\\\""));
 
         Request request = new Request.Builder()
-                .url(config.getBaseUrl() + "/audio/speech")
+                .url(config.getBaseUrl())
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .post(RequestBody.create(json, MediaType.parse("application/json")))
                 .build();
@@ -60,7 +60,7 @@ public class OpenAiAudioService {
                 .build();
 
         Request request = new Request.Builder()
-                .url(config.getBaseUrl() + "/audio/transcriptions")
+                .url(config.getBaseUrl())
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .post(requestBody)
                 .build();
