@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +32,6 @@ class LlmConfigServiceTest {
     void testSaveAndGetAll() {
         LlmConfig config = LlmConfig.builder()
                 .name("Test Model")
-                .type(LlmConfig.ConfigType.OLLAMA)
                 .modelType(LlmConfig.ModelType.CHAT)
                 .baseUrl("http://localhost:11434")
                 .modelName("llama3")

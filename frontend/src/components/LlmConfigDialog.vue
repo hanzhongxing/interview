@@ -69,23 +69,20 @@
       append-to-body
     >
       <el-form :model="editForm" label-width="100px">
-        <el-form-item label="名称">
-          <el-input v-model="editForm.name" placeholder="例如: 本地Ollama" />
+        <el-form-item label="配置名称">
+          <el-input v-model="editForm.name" placeholder="例如: DeepSeek, Ollama, GPT-4" />
         </el-form-item>
-        <el-form-item label="类型">
-          <el-select v-model="editForm.type">
-            <el-option label="OLLAMA" value="OLLAMA" />
-            <el-option label="OPENAI" value="OPENAI" />
-          </el-select>
+        <el-form-item label="Base URL">
+          <el-input v-model="editForm.baseUrl" placeholder="https://api.openai.com/v1" />
+          <div class="form-tip">
+            如果是 Ollama，通常是 http://localhost:11434/v1
+          </div>
         </el-form-item>
-        <el-form-item label="Base URL" v-if="editForm.type === 'OLLAMA'">
-          <el-input v-model="editForm.baseUrl" placeholder="http://localhost:11434" />
-        </el-form-item>
-        <el-form-item label="API Key" v-if="editForm.type === 'OPENAI'">
-          <el-input v-model="editForm.apiKey" type="password" />
+        <el-form-item label="API Key">
+          <el-input v-model="editForm.apiKey" type="password" placeholder="sk-..." />
         </el-form-item>
         <el-form-item label="模型名称">
-          <el-input v-model="editForm.modelName" placeholder="例如: llama3, nomic-embed-text" />
+          <el-input v-model="editForm.modelName" placeholder="例如: gpt-4, llama3, deepseek-chat" />
         </el-form-item>
         <el-form-item label="Temperature" v-if="editForm.modelType === 'CHAT'">
           <el-input-number v-model="editForm.temperature" :step="0.1" :min="0" :max="1" />
@@ -111,9 +108,8 @@ const editVisible = ref(false)
 const editForm = ref({
   id: null,
   name: '',
-  type: 'OLLAMA',
   modelType: 'CHAT',
-  baseUrl: 'http://localhost:11434',
+  baseUrl: '',
   modelName: '',
   apiKey: '',
   temperature: 0.7,
@@ -153,10 +149,9 @@ const addNewConfig = (modelType) => {
   editForm.value = {
     id: null,
     name: '',
-    type: 'OLLAMA',
     modelType: modelType,
-    baseUrl: 'http://localhost:11434',
-    modelName: modelType === 'VECTOR' ? 'nomic-embed-text' : 'llama3',
+    baseUrl: '',
+    modelName: '',
     apiKey: '',
     temperature: 0.7,
     active: false
@@ -168,8 +163,23 @@ const editConfig = (row) => {
   editForm.value = { ...row }
   editVisible.value = true
 }
+</script>
 
-const saveConfig = async () => {
+<style scoped>
+.model-list {
+  padding: 10px 0;
+}
+.add-btn {
+  margin-top: 20px;
+  text-align: right;
+}
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+</style>
   try {
     await axios.post('http://localhost:8086/api/llm-configs', editForm.value)
     ElMessage.success('保存成功')

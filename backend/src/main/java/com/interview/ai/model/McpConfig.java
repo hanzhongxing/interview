@@ -11,18 +11,9 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LlmConfig {
+public class McpConfig {
     @Builder.Default
     private String id = UUID.randomUUID().toString();
     private String name;
-    private ModelType modelType; // CHAT, VECTOR
-    private String baseUrl;
-    private String modelName;
-    private String apiKey;
-    private Double temperature;
-    private boolean active;
-
-    public enum ModelType {
-        CHAT, VECTOR
-    }
+    private String sseUrl;
 }

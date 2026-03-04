@@ -1,39 +1,36 @@
 <template>
-  <div class="glass-card upload-container">
-    <h2 class="gradient-text">Welcome to AI Interview</h2>
-    <p class="description">Please provide the Job Description and upload your resume.</p>
-    
-    <div class="jd-section">
-      <el-input
-        v-model="jd"
-        type="textarea"
-        :rows="4"
-        placeholder="Paste Job Description here (Optional)..."
-      />
+  <div class="resume-upload-card">
+    <div class="upload-section">
+      <el-upload
+        class="resume-uploader"
+        drag
+        action="http://localhost:8086/api/interview/upload-resume"
+        :on-success="handleSuccess"
+        :on-error="handleError"
+        :limit="1"
+      >
+        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+        <div class="el-upload__text">
+          将简历拖到此处，或 <em>点击上传</em>
+        </div>
+        <template #tip>
+          <div class="el-upload__tip">
+            支持 PDF, Word, TXT 格式。上传后将自动匹配最佳职位。
+          </div>
+        </template>
+      </el-upload>
     </div>
 
-    <el-upload
-      class="upload-demo"
-      drag
-      action="/api/interview/upload-resume"
-      :data="{ jd: jd }"
-      :on-success="handleSuccess"
-      :on-error="handleError"
-      :limit="1"
-      accept=".pdf,.doc,.docx,.txt"
-      v-if="!analysisResults"
-    >
-      <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-      <div class="el-upload__text">
-        Drop resume here or <em>click to upload</em>
+    <!-- Results Section -->
+    <div v-if="analysis" class="analysis-results">
+      <el-divider>匹配结果</el-divider>
+      <div class="match-info">
+        <el-tag type="success" size="large">自动匹配职位: {{ matchedJob }}</el-tag>
       </div>
-    </el-upload>
-
-    <div v-if="analysisResults" class="analysis-results glass-card">
-      <h3>Resume Analysis Report</h3>
       <div class="analysis-content" v-html="formattedAnalysis"></div>
-      <el-button type="primary" @click="startInterview" class="start-btn">Start Interview</el-button>
-      <el-button @click="reset">Upload Another</el-button>
+      <div class="actions">
+        <el-button type="primary" size="large" @click="startInterview">进入面试间</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -42,73 +39,52 @@
 import { ref, computed } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { marked } from 'marked'
 
-const emit = defineEmits(['uploaded', 'start'])
+const emit = defineEmits(['start'])
+const analysis = ref('')
+const sessionId = ref('')
+const matchedJob = ref('')
 
-const jd = ref('')
-const analysisResults = ref(null)
-const uploadResponse = ref(null)
-
-const handleSuccess = (response) => {
-  ElMessage.success('Resume uploaded and analyzed successfully!')
-  analysisResults.value = response.analysis
-  uploadResponse.value = response
-  emit('uploaded', response)
-}
-
-const handleError = (err) => {
-  ElMessage.error('Failed to upload resume: ' + err.message)
+const handleSuccess = (res) => {
+  sessionId.value = res.sessionId
+  analysis.value = res.analysis
+  matchedJob.value = res.matchedJob
+  ElMessage.success('简历上传成功并已自动匹配职位')
 }
 
 const formattedAnalysis = computed(() => {
-  return analysisResults.value ? analysisResults.value.replace(/\n/g, '<br>') : ''
+  return analysis.value ? marked(analysis.value) : ''
 })
 
 const startInterview = () => {
-  emit('start', uploadResponse.value)
-}
-
-const reset = () => {
-  analysisResults.value = null
-  uploadResponse.value = null
+  emit('start', {
+    sessionId: sessionId.value,
+    analysis: analysis.value,
+    jobTitle: matchedJob.value
+  })
 }
 </script>
 
 <style scoped>
-.upload-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 500px;
-  margin: 0 auto;
+.resume-upload-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
-
-.description {
-  color: var(--text-secondary);
+.match-info {
   text-align: center;
+  margin: 20px 0;
 }
-
-.upload-demo {
-  width: 100%;
-}
-
-.jd-section {
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.analysis-results {
-  width: 100%;
-  padding: 20px;
-  text-align: left;
-  animation: fadeIn 0.5s ease;
-}
-
 .analysis-content {
-  margin: 15px 0;
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
   line-height: 1.6;
-  font-size: 0.95rem;
   color: var(--text-primary);
 }
 

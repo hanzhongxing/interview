@@ -25,14 +25,14 @@ public class InterviewController {
 
     private final RagService ragService;
     private final ResumeAnalysisService analysisService;
+    private final com.interview.ai.service.JobService jobService;
 
     @Value("${interview.resume-path}")
     private String resumePath;
 
     @PostMapping("/upload-resume")
     public ResponseEntity<Map<String, Object>> uploadResume(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "jd", required = false) String jd) {
+            @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
@@ -46,13 +46,20 @@ public class InterviewController {
             // Ingest into RAG
             ragService.ingestResume(path);
 
+            // Match Job
+            java.util.List<com.interview.ai.model.Job> allJobs = jobService.getAllJobs();
+            com.interview.ai.model.Job matchedJob = analysisService.matchBestJob(path, allJobs);
+
+            String jd = matchedJob != null ? matchedJob.getDescription() : "默认通用开发岗位需求";
+            String jobTitle = matchedJob != null ? matchedJob.getTitle() : "通用岗位";
+
             // Perform Analysis
-            String effectiveJd = (jd != null && !jd.isEmpty()) ? jd : "默认通用开发岗位需求";
-            String analysisResults = analysisService.analyzeResume(path, effectiveJd);
+            String analysisResults = analysisService.analyzeResume(path, jd);
 
             return ResponseEntity.ok(Map.of(
                     "sessionId", UUID.randomUUID().toString(),
                     "fileName", fileName,
+                    "matchedJob", jobTitle,
                     "analysis", analysisResults));
         } catch (IOException e) {
             log.error("Failed to upload resume", e);

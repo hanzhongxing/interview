@@ -68,17 +68,11 @@ public class RagService {
     }
 
     private EmbeddingModel createEmbeddingModel(LlmConfig config) {
-        if (config.getType() == LlmConfig.ConfigType.OPENAI) {
-            return dev.langchain4j.model.openai.OpenAiEmbeddingModel.builder()
-                    .apiKey(config.getApiKey())
-                    .modelName(config.getModelName())
-                    .build();
-        } else {
-            return OllamaEmbeddingModel.builder()
-                    .baseUrl(config.getBaseUrl())
-                    .modelName(config.getModelName() != null ? config.getModelName() : "nomic-embed-text")
-                    .build();
-        }
+        return dev.langchain4j.model.openai.OpenAiEmbeddingModel.builder()
+                .baseUrl(config.getBaseUrl())
+                .apiKey(config.getApiKey() != null ? config.getApiKey() : "demo")
+                .modelName(config.getModelName())
+                .build();
     }
 
     public void loadKnowledgeBase() {
