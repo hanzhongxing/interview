@@ -26,7 +26,6 @@ public class InterviewChatController {
         log.info("Received message from session {}: {}", sessionId, message);
 
         TokenStream tokenStream = interviewer.interview(sessionId, message);
-
         tokenStream
                 .onNext(token -> {
                     messagingTemplate.convertAndSend("/topic/interview/" + sessionId,

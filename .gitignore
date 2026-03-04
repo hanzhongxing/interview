@@ -28,3 +28,6 @@ target
 target/
 target/*
 /target
+.idea
+.idea/
+.idea/*
