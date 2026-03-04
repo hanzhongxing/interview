@@ -1,78 +1,76 @@
 # AI Interview Room (AI 自动面试间) 🤖
 
-这是一个基于 **Spring Boot 3 + LangChain4j + Ollama + Vue 3 + Element Plus** 构建的智能化、全本地化 AI 面试系统。该系统集成了数字人视觉反馈、自动简历分析以及基于 RAG（检索增强生成）的专业面试流程。
+[English](#english) | [中文](#中文)
 
 ---
 
-## 🏗️ 核心特性
+<a name="english"></a>
+## English
 
-- **📄 智能简历匹配**: 自动解析应聘者上传的简历，并利用向量数据库与岗位需求进行深度匹配。
-- **🧠 深度 RAG 面试**: 结合本地知识库（如职位描述、公司文化、技术要求），AI 面试官能够提出极具针对性的专业问题。
-- **💬 实时流式对话**: 基于 WebSocket (STOMP) 实现低延迟的 AI 回复流式推送。
-- **👤 数字人视觉引导**: 前端内置具有动态语音波纹反馈的“数字人”形象，模拟真实的面试交流环境。
-- **🔒 全本地隐私保护**: 所有的简历文件、知识库文档、向量索引以及 LLM 推理均在本地运行，确保数据不外泄。
+### 🌟 Project Overview
+AI Interview Room is an intelligent, high-performance interview system built with **Spring Boot 3 + LangChain4j + Vue 3 + Element Plus**. It features a realistic digital human interface, automated resume analysis, and a professional interview process powered by RAG (Retrieval-Augmented Generation).
 
----
+The system supports **Streaming AI Voice (TTS)** and **Real-time Voice Input (STT)** to provide a seamless, low-latency conversational experience.
 
-## 🛠️ 技术栈
+### 🚀 Core Features
+- **📄 Intelligent Resume Matching**: Automatically parses resumes and matches them against job requirements using vector search. Supports single-match auto-entry and multi-match selection.
+- **🎙️ Real-time Streaming Voice**: 
+    - **Streaming TTS**: AI responses are synthesized into PCM streams and played via Web Audio API for near-zero latency.
+    - **Streaming STT**: User voice is streamed via binary WebSockets for real-time transcription ("Text-as-you-speak").
+- **👤 Digital Human Interface**: Dynamic avatar with voice-reactive animations and modern "Glassmorphism" UI.
+- **🧠 Advanced RAG Engine**: Context-aware interviewing based on local job descriptions, company culture, and technical requirements.
+- **🛠️ Dynamic Configuration**: Manage LLM models (OpenAI/Ollama), MCP services, and job postings through a centralized management dashboard.
+- **🔒 Privacy-Focused**: Supports local-first deployment (Ollama) to ensure data security.
 
-### 后端 (Backend)
-- **Spring Boot 3.3**: 基础应用框架。
-- **LangChain4j**: LLM 编排，支持 RAG、内存管理和 AI 服务定义。
-- **Ollama**: 本地通用大模型（Llama3）与向量模型（nomic-embed-text）。
-- **WebSocket (STOMP)**: 实现全双工流式面试。
-- **Apache Tika**: 多格式文档（PDF/DOCX/TXT）解析。
+### 🛠️ Tech Stack
+- **Backend**: Spring Boot 3.3, LangChain4j, OpenAI/Ollama API, WebSocket (STOMP & Binary), OkHttp.
+- **Frontend**: Vue 3 (Vite), Element Plus, Web Audio API, SockJS.
+- **DevOps**: Maven, Node.js.
 
-### 前端 (Frontend)
-- **Vue 3 (Vite)**: 响应式 UI 框架。
-- **Element Plus**: 现代化的组件库。
-- **SockJS & Stomp.js**: 实时通信客户端。
-- **Glassmorphism CSS**: 高级感透明毛玻璃设计语言。
-
----
-
-## 🚀 快速启动
-
-### 1. 准备本地模型 (Ollama)
-请确保您的机器已安装 [Ollama](https://ollama.com/) 并运行以下命令下载所需模型：
-```bash
-# 下载对话模型
-ollama pull llama3
-# 下载向量模型
-ollama pull nomic-embed-text
-```
-
-### 2. 后端部署
-```bash
-cd backend
-mvn clean install
-mvn spring-boot:run
-```
-- 服务运行于: `http://localhost:8086`
-
-### 3. 前端部署
-```bash
-cd frontend
-npm install
-npm run dev
-```
-- 访问地址: `http://localhost:3000`
+### 📦 Quick Start
+1. **Configure Models**: Open the management dashboard, set up your LLM (Chat, Embedding, TTS, STT).
+2. **Setup Data**: Upload Job Descriptions in "Job Management".
+3. **Run**:
+    - Backend: `mvn spring-boot:run` (Port: 8086)
+    - Frontend: `npm run dev` (Port: 3000)
 
 ---
 
-## 📂 存储结构
-项目会在根目录自动创建 `data` 文件夹：
-- `/data/kb`: **岗位知识库**。请将职位描述 (JD) 或公司介绍放入此处，系统启动时会自动索引。
-- `/data/resumes`: **简历仓库**。存储应聘者上传的原始简历文件。
-- `/data/vectors`: **向量存储**。持久化存储文档的嵌入向量。
+<a name="中文"></a>
+## 中文
+
+### 🌟 项目简介
+AI 自动面试间是一款基于 **Spring Boot 3 + LangChain4j + Vue 3 + Element Plus** 构建的高性能智能化面试系统。它集成了拟真数字人交互、自动化简历分析以及基于 RAG（检索增强生成）的专业面试流程。
+
+系统全面支持 **流式 AI 语音（TTS）** 与 **实时语音输入（STT）**，打造极低延迟的沉浸式对话体验。
+
+### 🚀 核心特性
+- **📄 智能简历匹配**: 自动解析应聘者简历，并利用向量数据库进行深度岗位匹配。支持单岗位自动跳转及多岗位手动选择。
+- **🎙️ 流式语音交互**:
+    - **流式播放 (TTS)**: AI 回复采用 PCM 流式合成，前端通过 Web Audio API 实时解析播放，实现秒级响应。
+    - **实时转录 (STT)**: 求职者语音通过二进制 WebSocket 实时传输，实现“边说边出字”的极致交互。
+- **👤 数字人视觉引导**: 内置具有动态语音感应动画的数字人形象，结合“毛玻璃”设计语言，营造高端面试氛围。
+- **🧠 深度 RAG 引擎**: 结合本地岗位描述、企业文化及技术要求，AI 面试官能够提出极具专业性的针对性问题。
+- **🛠️ 动态配置管理**: 支持在管理后台动态配置多个大模型（OpenAI/Ollama）、MCP 远程服务及岗位信息。
+- **🔒 隐私与安全**: 支持全本地化部署（配合 Ollama），确保简历及业务数据不出私有网络。
+
+### 🛠️ 技术栈
+- **后端**: Spring Boot 3.3, LangChain4j, OpenAI/Ollama API, WebSocket (STOMP & Binary), OkHttp.
+- **前端**: Vue 3 (Vite), Element Plus, Web Audio API, SockJS.
+- **基础**: Maven, Node.js.
+
+### 📦 快速启动
+1. **模型配置**: 进入管理后台，配置所需的聊天、向量、语音流、转录模型路径。
+2. **职位准备**: 在“职位管理”中上传岗位描述文档（JD）。
+3. **运行**:
+    - 后端: `mvn spring-boot:run` (端口: 8086)
+    - 前端: `npm run dev` (端口: 3000)
 
 ---
 
-## 📸 界面预览
-- **准备阶段**: 应聘者上传简历。
-- **面试阶段**: 数字人面试官引导，左侧为动态交互形象，右侧为实时谈话窗口。
-
----
+## 📸 预览与文档
+- **流程**: 简历上传 -> 自动匹配 -> 情感化对话 -> 评估反馈。
+- **更多细节**: 请参考项目内的 `walkthrough.md`。
 
 ## 📝 许可证
 [MIT License](LICENSE)
