@@ -42,7 +42,7 @@ public class InterviewController {
             Path path = Paths.get(resumePath, fileName);
             Files.createDirectories(path.getParent());
             Files.copy(file.getInputStream(), path);
-
+            log.info("ingestResume");
             // Ingest into RAG
             ragService.ingestResume(path);
 

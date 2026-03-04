@@ -106,7 +106,7 @@ const activeTab = ref('CHAT')
 const configs = ref([])
 const editVisible = ref(false)
 const editForm = ref({
-  id: null,
+  id: '',
   name: '',
   modelType: 'CHAT',
   baseUrl: '',
@@ -147,7 +147,7 @@ const handleActivate = async (row) => {
 
 const addNewConfig = (modelType) => {
   editForm.value = {
-    id: null,
+    id:'',
     name: '',
     modelType: modelType,
     baseUrl: '',

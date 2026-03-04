@@ -57,11 +57,7 @@ public class RagService {
             embeddingModel = llmConfigService.getActiveConfig(LlmConfig.ModelType.VECTOR)
                     .map(this::createEmbeddingModel)
                     .orElseGet(() -> {
-                        log.warn("No active vector model found, using default Ollama embedding model");
-                        return OllamaEmbeddingModel.builder()
-                                .baseUrl("http://localhost:11434")
-                                .modelName("nomic-embed-text")
-                                .build();
+                        return null;
                     });
         }
         return embeddingModel;
@@ -70,7 +66,7 @@ public class RagService {
     private EmbeddingModel createEmbeddingModel(LlmConfig config) {
         return dev.langchain4j.model.openai.OpenAiEmbeddingModel.builder()
                 .baseUrl(config.getBaseUrl())
-                .apiKey(config.getApiKey() != null ? config.getApiKey() : "demo")
+                .apiKey(config.getApiKey())
                 .modelName(config.getModelName())
                 .build();
     }
