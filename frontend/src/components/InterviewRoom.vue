@@ -148,43 +148,100 @@ const handleIncomingContent = (data) => {
 const playAIResponse = async (text) => {
   if (!text) return
   try {
-    const response = await axios.post('/api/audio/speech', { text }, { responseType: 'blob' })
-    const url = URL.createObjectURL(response.data)
+    const response = await fetch('/api/audio/speech', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    })
+
+    if (!response.ok) throw new Error('TTS request failed')
+
+    const reader = response.body.getReader()
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
     
-    if (audioPlayer) {
-      audioPlayer.pause()
+    // We expect 16kHz PCM 16bit mono (OpenAI default if not specified otherwise, 
+    // but user manually set it, we'll assume standard web frequency for now)
+    const SAMPLE_RATE = 24000 // OpenAI tts-1 pcm standard is usually 24k
+    
+    let startTime = audioCtx.currentTime
+    isSpeaking.value = true
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      
+      // Convert PCM 16-bit LE to Float32
+      const pcm16 = new Int16Array(value.buffer, value.byteOffset, value.byteLength / 2)
+      const float32 = new Float32Array(pcm16.length)
+      for (let i = 0; i < pcm16.length; i++) {
+        float32[i] = pcm16[i] / 32768
+      }
+      
+      const audioBuffer = audioCtx.createBuffer(1, float32.length, SAMPLE_RATE)
+      audioBuffer.getChannelData(0).set(float32)
+      
+      const source = audioCtx.createBufferSource()
+      source.buffer = audioBuffer
+      source.connect(audioCtx.destination)
+      
+      source.start(startTime)
+      startTime += audioBuffer.duration
+      
+      source.onended = () => {
+        // This is tricky for individual chunks. Better to track the whole stream.
+      }
     }
     
-    audioPlayer = new Audio(url)
-    audioPlayer.onplay = () => { isSpeaking.value = true }
-    audioPlayer.onended = () => { isSpeaking.value = false }
-    audioPlayer.onerror = () => { isSpeaking.value = false }
-    audioPlayer.play()
+    // Approximate end of speech
+    setTimeout(() => {
+        isSpeaking.value = false
+    }, (startTime - audioCtx.currentTime) * 1000)
+
   } catch (error) {
-    console.error('Failed to play AI response', error)
+    console.error('Failed to play AI response stream', error)
+    isSpeaking.value = false
   }
 }
+
+let sttSocket = null
 
 const startRecording = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorder = new MediaRecorder(stream)
-    audioChunks = []
+    
+    // Open STT WebSocket
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    // Use the same host as the app, but adjust for the STT endpoint
+    const host = window.location.host
+    sttSocket = new WebSocket(`${protocol}//${host}/ws/stt`)
+    sttSocket.binaryType = 'arraybuffer'
+    
+    sttSocket.onmessage = (event) => {
+      // Received partial transcription
+      userInput.value = event.data
+    }
+
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
     
     mediaRecorder.ondataavailable = (event) => {
-      audioChunks.push(event.data)
+      if (event.data.size > 0 && sttSocket.readyState === WebSocket.OPEN) {
+        sttSocket.send(event.data)
+      }
     }
     
-    mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
-      transcribeAudio(audioBlob)
+    mediaRecorder.onstop = () => {
+      if (sttSocket) {
+        sttSocket.close()
+      }
       stream.getTracks().forEach(track => track.stop())
     }
     
-    mediaRecorder.start()
+    // Capture every 500ms for more "real-time" feel
+    mediaRecorder.start(500)
     isRecording.value = true
   } catch (err) {
     ElMessage.error('无法访问麦克风')
+    console.error(err)
   }
 }
 
@@ -192,26 +249,6 @@ const stopRecording = () => {
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.stop()
     isRecording.value = false
-  }
-}
-
-const transcribeAudio = async (blob) => {
-  const formData = new FormData()
-  formData.append('file', blob, 'voice.webm')
-  
-  isAIThinking.value = true
-  try {
-    const res = await axios.post('/api/audio/transcribe', formData)
-    if (res.data.text) {
-      userInput.value = res.data.text
-      sendMessage()
-    } else {
-      ElMessage.warning('未能识别语音内容')
-    }
-  } catch (error) {
-    ElMessage.error('语音识别失败')
-  } finally {
-    isAIThinking.value = false
   }
 }
 

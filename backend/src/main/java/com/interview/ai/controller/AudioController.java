@@ -4,16 +4,18 @@ import com.interview.ai.service.OpenAiAudioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/audio")
@@ -24,20 +26,38 @@ public class AudioController {
     private final OpenAiAudioService audioService;
 
     @PostMapping("/speech")
-    public ResponseEntity<byte[]> generateSpeech(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<StreamingResponseBody> generateSpeech(@RequestBody Map<String, String> payload) {
         String text = payload.get("text");
         if (text == null || text.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
         try {
-            byte[] audioData = audioService.generateSpeech(text);
+            InputStream inputStream = audioService.generateSpeechStream(text);
+
+            StreamingResponseBody responseBody = outputStream -> {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                try {
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                    outputStream.flush();
+                } finally {
+                    inputStream.close();
+                }
+            };
+
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.parseMediaType("audio/mpeg"));
-            headers.setContentLength(audioData.length);
-            return new ResponseEntity<>(audioData, headers, HttpStatus.OK);
+            // User requested PCM, but technically it's raw audio data.
+            // We'll set it to octet-stream and the frontend will handle it as PCM.
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(responseBody);
         } catch (Exception e) {
-            log.error("Failed to generate speech", e);
+            log.error("Failed to generate speech stream", e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -48,7 +68,7 @@ public class AudioController {
             Path tempFile = Files.createTempFile("voice_", ".webm");
             file.transferTo(tempFile);
 
-            String text = audioService.transcribe(java.util.Objects.requireNonNull(tempFile));
+            String text = audioService.transcribe(Objects.requireNonNull(tempFile));
 
             Files.deleteIfExists(tempFile);
             return ResponseEntity.ok(Map.of("text", text));

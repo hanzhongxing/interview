@@ -7,6 +7,7 @@ import okhttp3.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
@@ -24,27 +25,36 @@ public class OpenAiAudioService {
 
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
-    public byte[] generateSpeech(String text) {
+    public InputStream generateSpeechStream(String text) {
         LlmConfig config = llmConfigService.getActiveConfig(LlmConfig.ModelType.SPEECH)
                 .orElseThrow(() -> new RuntimeException("TTS Model not configured"));
 
-        String json = String.format("{\"model\": \"%s\", \"input\": \"%s\", \"voice\": \"tongtong\",\"response_format\":\"pcm\"}",
-                config.getModelName(), text.replace("\"", "\\\"").replace("\n",""));
-        log.info("tts json:{}",json);
+        // Using user's requested format: PCM, voice: tongtong, and cleaning up text
+        String cleanedText = text.replace("\"", "\\\"").replace("\n", "");
+
+        String json = String.format(
+                "{\"model\": \"%s\", \"input\": \"%s\", \"voice\": \"tongtong\", \"response_format\": \"pcm\"}",
+                config.getModelName(), cleanedText);
+
+        log.info("TTS streaming request json: {}", json);
+
         Request request = new Request.Builder()
-                .url(config.getBaseUrl())
+                .url(config.getBaseUrl()) // User manually edited this to be the full URL or direct path
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .post(RequestBody.create(json, MediaType.parse("application/json")))
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try {
+            Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
-                throw new IOException("TTS Request failed: " + response.body().string());
+                String errorBody = response.body() != null ? response.body().string() : "No body";
+                log.error("TTS Request failed: {}", errorBody);
+                throw new IOException("TTS Request failed with code " + response.code());
             }
-            return response.body().bytes();
+            return response.body().byteStream();
         } catch (IOException e) {
-            log.error("Failed to generate speech", e);
-            throw new RuntimeException("TTS service error", e);
+            log.error("Failed to generate speech stream", e);
+            throw new RuntimeException("TTS streaming service error", e);
         }
     }
 
@@ -60,14 +70,16 @@ public class OpenAiAudioService {
                 .build();
 
         Request request = new Request.Builder()
-                .url(config.getBaseUrl())
+                .url(config.getBaseUrl()) // User manually edited this to be the full URL
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .post(requestBody)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("Transcription Request failed: " + response.body().string());
+                String errorBody = response.body() != null ? response.body().string() : "No body";
+                log.error("Transcription Request failed: {}", errorBody);
+                throw new IOException("Transcription Request failed with code " + response.code());
             }
             String responseBody = response.body().string();
             return objectMapper.readTree(responseBody).get("text").asText();
