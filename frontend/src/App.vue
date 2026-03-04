@@ -40,6 +40,21 @@
       </el-header>
       
       <el-main class="main-content">
+        <el-alert
+          v-if="!isLlmConfigured"
+          title="大模型未配置"
+          type="warning"
+          description="当前尚未配置可用的大模型，面试功能将无法使用。请前往配置页面进行设置。"
+          show-icon
+          style="margin-bottom: 20px;"
+        >
+          <template #default>
+            <el-button type="primary" size="small" @click="handleOpenSettings" style="margin-top: 10px;">
+              立即配置
+            </el-button>
+          </template>
+        </el-alert>
+
         <div v-if="activeMenu === 'interview'" class="content-view">
           <div v-if="!isInterviewStarted" class="setup-room">
             <ResumeUpload @start="handleStart" />
@@ -60,16 +75,17 @@
       </el-main>
     </el-container>
     
-    <LlmConfigDialog ref="settingsDialog" />
+    <LlmConfigDialog ref="settingsDialog" @saved="onConfigSaved" />
   </el-container>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { 
   ChatDotRound, Briefcase, Connection, 
-  Collection, Setting 
+  Collection, Setting, Warning
 } from '@element-plus/icons-vue'
+import axios from 'axios'
 import ResumeUpload from './components/ResumeUpload.vue'
 import InterviewRoom from './components/InterviewRoom.vue'
 import LlmConfigDialog from './components/LlmConfigDialog.vue'
@@ -82,6 +98,7 @@ const isInterviewStarted = ref(false)
 const sessionId = ref('')
 const candidateAnalysis = ref('')
 const settingsDialog = ref(null)
+const isLlmConfigured = ref(true)
 
 const menuTitle = computed(() => {
   const titles = {
@@ -94,18 +111,39 @@ const menuTitle = computed(() => {
   return titles[activeMenu.value] || ''
 })
 
+const checkStatus = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/status')
+    isLlmConfigured.value = response.data.llmConfigured
+  } catch (error) {
+    console.error('Failed to check system status', error)
+  }
+}
+
+onMounted(() => {
+  checkStatus()
+})
+
 const handleMenuSelect = (index) => {
   if (index === 'settings') {
-    settingsDialog.value?.show()
+    handleOpenSettings()
     return
   }
   activeMenu.value = index
+}
+
+const handleOpenSettings = () => {
+  settingsDialog.value?.show()
 }
 
 const handleStart = (data) => {
   sessionId.value = data.sessionId
   candidateAnalysis.value = data.analysis
   isInterviewStarted.value = true
+}
+
+const onConfigSaved = () => {
+  checkStatus()
 }
 </script>
 

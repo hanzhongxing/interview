@@ -25,9 +25,10 @@ public class ChatConfig {
 
     @Bean
     public ChatLanguageModel chatLanguageModel() {
-        return llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
-                .map(this::createChatModel)
-                .orElse(null);
+        return new com.interview.ai.model.lazy.LazyChatLanguageModel(
+                () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
+                        .map(this::createChatModel)
+                        .orElse(null));
     }
 
     private ChatLanguageModel createChatModel(LlmConfig config) {
@@ -41,9 +42,10 @@ public class ChatConfig {
 
     @Bean
     public dev.langchain4j.model.chat.StreamingChatLanguageModel streamingChatLanguageModel() {
-        return llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
-                .map(this::createStreamingChatModel)
-                .orElse(null);
+        return new com.interview.ai.model.lazy.LazyStreamingChatLanguageModel(
+                () -> llmConfigService.getActiveConfig(LlmConfig.ModelType.CHAT)
+                        .map(this::createStreamingChatModel)
+                        .orElse(null));
     }
 
     private dev.langchain4j.model.chat.StreamingChatLanguageModel createStreamingChatModel(LlmConfig config) {
@@ -59,10 +61,6 @@ public class ChatConfig {
     @org.springframework.context.annotation.Lazy
     public Interviewer interviewer(dev.langchain4j.model.chat.StreamingChatLanguageModel streamingChatModel,
             RagService ragService) {
-        if (streamingChatModel == null) {
-            log.error("Cannot create Interviewer: StreamingChatLanguageModel is null");
-            return null;
-        }
         AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
                 .streamingChatLanguageModel(streamingChatModel)
                 .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(20))
