@@ -27,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatConfig {
 
+        private final static int max_memory_num=100;
+
         private final LlmConfigService llmConfigService;
         private final McpConfigService mcpConfigService;
 
@@ -69,7 +71,7 @@ public class ChatConfig {
         public Interviewer interviewer(StreamingChatLanguageModel streamingChatModel,RagService ragService) {
                 AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
                                 .streamingChatLanguageModel(streamingChatModel)
-                                .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(20))
+                                .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(max_memory_num))
                                 .contentRetriever(ragService.getContentRetriever());
 
                 List<McpConfig> mcpConfigs = mcpConfigService.getAllConfigs();
