@@ -2,6 +2,11 @@
   <div class="interview-viewport">
     <!-- Left: Digital Human -->
     <div class="avatar-column glass-card">
+      <div class="enable_speech">
+        <el-switch v-model="enableSpeech" active-color="#13ce66" inactive-color="#ff4949" style="margin-bottom: 10px;">
+          {{ enableSpeech ? '语音已启用' : '语音已禁用' }}
+        </el-switch>
+      </div>
       <div class="avatar-container">
         <div class="avatar-placeholder" :class="{ 'is-speaking': isSpeaking }">
           <div class="avatar-circle"></div>
@@ -81,7 +86,7 @@ const isAIThinking = ref(false)
 const isSpeaking = ref(false)
 const status = ref({ type: 'online', text: 'Initializing...' })
 const messageContainer = ref(null)
-
+const enableSpeech = ref(false)
 const supportVOice = ref(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia))
 const isRecording = ref(false)
 let mediaRecorder = null
@@ -136,7 +141,9 @@ const handleIncomingContent = (data) => {
   } else if (data.type === 'complete') {
     const lastMsg = messages.value[messages.value.length - 1]
     if (lastMsg && lastMsg.role === 'assistant') {
-      playAIResponse(lastMsg.content)
+      if(enableSpeech.value){
+        playAIResponse(lastMsg.content)
+      }
     }
   } else if (data.type === 'error') {
     isAIThinking.value = false
