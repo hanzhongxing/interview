@@ -6,6 +6,9 @@ import com.interview.ai.service.LlmConfigService;
 import com.interview.ai.service.McpConfigService;
 import com.interview.ai.service.Interviewer;
 import com.interview.ai.service.RagService;
+import dev.langchain4j.mcp.client.DefaultMcpClient;
+import dev.langchain4j.mcp.client.McpClient;
+import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
 import lombok.RequiredArgsConstructor;
 import com.interview.ai.model.lazy.LazyChatLanguageModel;
 import com.interview.ai.model.lazy.LazyStreamingChatLanguageModel;
@@ -16,10 +19,11 @@ import dev.langchain4j.service.AiServices;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import java.util.List;
 
-@Configuration
 @Slf4j
+@Configuration
 @RequiredArgsConstructor
 public class ChatConfig {
 
@@ -61,9 +65,8 @@ public class ChatConfig {
         }
 
         @Bean
-        @org.springframework.context.annotation.Lazy
-        public Interviewer interviewer(StreamingChatLanguageModel streamingChatModel,
-                        RagService ragService) {
+        @Lazy
+        public Interviewer interviewer(StreamingChatLanguageModel streamingChatModel,RagService ragService) {
                 AiServices<Interviewer> builder = AiServices.builder(Interviewer.class)
                                 .streamingChatLanguageModel(streamingChatModel)
                                 .chatMemoryProvider(sessionId -> MessageWindowChatMemory.withMaxMessages(20))
@@ -72,14 +75,13 @@ public class ChatConfig {
                 List<McpConfig> mcpConfigs = mcpConfigService.getAllConfigs();
                 for (McpConfig mcpConfig : mcpConfigs) {
                         try {
-                                dev.langchain4j.mcp.client.McpClient mcpClient = new dev.langchain4j.mcp.client.DefaultMcpClient.Builder()
-                                                .transport(new dev.langchain4j.mcp.client.transport.http.HttpMcpTransport.Builder()
-                                                                .sseUrl(mcpConfig.getSseUrl())
-                                                                .build())
-                                                .build();
-                                builder.tools(mcpClient.listTools());
-                                log.info("MCP tools integrated from {} ({})", mcpConfig.getName(),
-                                                mcpConfig.getSseUrl());
+                        McpClient mcpClient = new DefaultMcpClient.Builder()
+                                .transport(new HttpMcpTransport.Builder()
+                                                .sseUrl(mcpConfig.getSseUrl())
+                                                .build())
+                                .build();
+                        builder.tools(mcpClient.listTools());
+                        log.info("MCP tools integrated from {} ({})", mcpConfig.getName(),mcpConfig.getSseUrl());
                         } catch (Exception e) {
                                 log.error("Failed to connect to MCP server: {}", mcpConfig.getName(), e);
                         }
