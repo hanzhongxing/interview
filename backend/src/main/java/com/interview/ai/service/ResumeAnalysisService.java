@@ -1,5 +1,6 @@
 package com.interview.ai.service;
 
+import com.interview.ai.model.Job;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser;
@@ -7,8 +8,9 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -34,8 +36,7 @@ public class ResumeAnalysisService {
                 return chatModel.generate(prompt);
         }
 
-        public java.util.List<com.interview.ai.model.Job> matchJobs(Path resumePath,
-                        java.util.List<com.interview.ai.model.Job> jobs) {
+        public List<Job> matchJobs(Path resumePath,List<Job> jobs) {
                 if (jobs == null || jobs.isEmpty()) {
                         return java.util.Collections.emptyList();
                 }
@@ -66,15 +67,14 @@ public class ResumeAnalysisService {
                 }
 
                 String[] matchedIds = response.split(",");
-                java.util.List<com.interview.ai.model.Job> matches = new java.util.ArrayList<>();
+                List<Job> matches = new ArrayList<>();
                 for (String id : matchedIds) {
                         String cleanId = id.trim();
                         jobs.stream()
-                                        .filter(j -> j.getId().equals(cleanId) || cleanId.contains(j.getId()))
-                                        .findFirst()
-                                        .ifPresent(matches::add);
+                                .filter(j -> j.getId().equals(cleanId) || cleanId.contains(j.getId()))
+                                .findFirst()
+                                .ifPresent(matches::add);
                 }
-
                 return matches;
         }
 }

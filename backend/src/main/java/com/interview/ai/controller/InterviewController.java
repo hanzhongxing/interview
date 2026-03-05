@@ -35,12 +35,10 @@ public class InterviewController {
     private String resumePath;
 
     @PostMapping("/upload-resume")
-    public ResponseEntity<Map<String, Object>> uploadResume(
-            @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> uploadResume(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path path = Paths.get(resumePath, fileName);
