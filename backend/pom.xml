@@ -159,6 +159,19 @@
 			<artifactId>onnxruntime</artifactId>
 			<version>1.22.0</version>
 		</dependency>
+
+		<!--sherpa-onnx-->
+		<!--https://github.com/k2-fsa/sherpa-onnx/releases-->
+		<dependency>
+			<groupId>sherpa-onnx</groupId>
+			<artifactId>sherpa-api</artifactId>
+			<version>1.12.28</version>
+		</dependency>
+		<dependency>
+			<groupId>sherpa-onnx</groupId>
+			<artifactId>mac-native-lib</artifactId>
+			<version>1.12.28</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

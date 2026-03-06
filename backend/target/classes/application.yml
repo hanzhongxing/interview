@@ -16,3 +16,4 @@ interview:
   kb-path: ${interview.data-path}/kb
   resume-path: ${interview.data-path}/resumes
   vector-store-path: ${interview.data-path}/vectors/store.json
+  speech-path: ${interview.data-path}/speech
