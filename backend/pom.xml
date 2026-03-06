@@ -172,17 +172,13 @@
 			<artifactId>mac-native-lib-1.11.0</artifactId>
 			<version>1.12.28</version>
 		</dependency>
+		<!--alphacephei vosk-->
+		<dependency>
+			<groupId>com.alphacephei</groupId>
+			<artifactId>vosk</artifactId>
+			<version>0.3.45</version>
+		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>https://repo.maven.apache.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 
 	<build>
 		<plugins>

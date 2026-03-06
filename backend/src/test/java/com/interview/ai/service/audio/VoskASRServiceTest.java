@@ -6,17 +6,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 @SpringBootTest
-class SherpaOnnxAsrAudioServiceTest {
-
+class VoskASRServiceTest {
     private final static String test_wav="https://github.com/hanzhongxing/interview/blob/main/0.wav";
 
-
     @Resource
-    SherpaOnnxASRService service;
+    VoskASRService voskASRService;
 
     @Test
     public void doTest(){
-        String txt=service.transcribe(test_wav);
+        String txt=voskASRService.transcribe(test_wav);
         System.out.println(txt);
     }
 

@@ -19,7 +19,7 @@ import java.io.InputStream;
 
 @Slf4j
 @Service
-public class SherpaOnnxAsrAudioService extends BaseAudioService{
+public class SherpaOnnxASRService extends BaseAudioService{
 
     private final static String resource_folder="sherpa";
     private final static String sense_voice_folder="sense_voice";
