@@ -137,6 +137,7 @@ public class SherpaOnnxAsrAudioService extends BaseAudioService{
                     .setOfflineModelConfig(modelConfig)
                     .build();
 
+            System.out.println("初始化识别器实例...");
             // 4. 初始化识别器实例
             OfflineRecognizer recognizer = new OfflineRecognizer(config);
 
