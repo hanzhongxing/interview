@@ -10,9 +10,9 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
-@Slf4j
 public class InterviewChatController {
 
     private final Interviewer interviewer;

@@ -37,6 +37,11 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>2.0.61</version>
+		</dependency>
 
 		<!-- LangChain4j -->
 		<dependency>
@@ -85,6 +90,74 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<!--freetts tts -->
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>freetts</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>cmu_us_kal</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>cmu_time_awb</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>cmulex</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>en_us</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>cmudict04</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>cmutimelex</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.speech.freetts</groupId>
+			<artifactId>mbrola</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+
+		<!--Voices-->
+		<dependency>
+			<groupId>org.pitest.voices</groupId>
+			<artifactId>chorus</artifactId>
+			<version>0.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pitest.voices</groupId>
+			<artifactId>alba</artifactId>
+			<version>0.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pitest.voices</groupId>
+			<artifactId>en_uk</artifactId>
+			<version>0.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.pitest.voices</groupId>
+			<artifactId>openvoice-phonemizer</artifactId>
+			<version>0.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>com.microsoft.onnxruntime</groupId>
+			<artifactId>onnxruntime</artifactId>
+			<version>1.22.0</version>
 		</dependency>
 	</dependencies>
 
