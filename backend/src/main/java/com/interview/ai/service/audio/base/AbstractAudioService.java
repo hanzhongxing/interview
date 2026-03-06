@@ -1,4 +1,4 @@
-package com.interview.ai.service.audio;
+package com.interview.ai.service.audio.base;
 
 import java.io.InputStream;
 

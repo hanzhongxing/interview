@@ -1,8 +1,9 @@
-package com.interview.ai.service.audio;
+package com.interview.ai.service.audio.components;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.interview.ai.model.LlmConfig;
 import com.interview.ai.service.LlmConfigService;
+import com.interview.ai.service.audio.base.BaseAudioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class OpenAiAudioService extends BaseAudioService{
+public class OpenAiAudioService extends BaseAudioService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

@@ -1,5 +1,6 @@
-package com.interview.ai.service.audio;
+package com.interview.ai.service.audio.components;
 
+import com.interview.ai.service.audio.base.BaseAudioService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.io.InputStream;
  */
 @Slf4j
 @Service
-public class VoskASRService extends BaseAudioService{
+public class VoskASRService extends BaseAudioService {
 
     private final static String folder="vosk";
     private final static String dylib_name="libvosk.dylib";
@@ -35,7 +36,7 @@ public class VoskASRService extends BaseAudioService{
         log.info("load dylib success ");
     }
 
-    protected String transcribe(String filePath) {
+    public String transcribe(String filePath) {
         try{
             Model model = new Model(speechPath+"/"+folder+"/"+model_folder);
 
@@ -62,7 +63,7 @@ public class VoskASRService extends BaseAudioService{
         return null;
     }
 
-    protected InputStream transcribe(InputStream audioStream) {
+    public InputStream transcribe(InputStream audioStream) {
         try{
             Model model = new Model(speechPath+"/"+folder+"/"+model_folder);
             AudioFormat format = new AudioFormat(16000, 16, 1, true, false);

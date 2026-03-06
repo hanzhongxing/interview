@@ -1,5 +1,6 @@
-package com.interview.ai.service.audio;
+package com.interview.ai.service.audio.components;
 
+import com.interview.ai.service.audio.base.BaseAudioService;
 import lombok.extern.slf4j.Slf4j;
 import org.pitest.voices.Chorus;
 import org.pitest.voices.ChorusConfig;
@@ -7,7 +8,6 @@ import org.pitest.voices.alba.Alba;
 import org.pitest.voices.audio.Audio;
 import org.pitest.voices.g2p.core.dictionary.Dictionaries;
 import org.pitest.voices.openvoice.OpenVoiceSupplier;
-import org.pitest.voices.uk.EnUkDictionary;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 
 @Slf4j
 @Service
-public class VoicesTTSService extends BaseAudioService{
+public class VoicesTTSService extends BaseAudioService {
 
     public InputStream generate(String text) {
         //EnUkDictionary.en_uk()

@@ -1,5 +1,6 @@
-package com.interview.ai.service.audio;
+package com.interview.ai.service.audio.components;
 
+import com.interview.ai.service.audio.base.BaseAudioService;
 import com.interview.ai.utils.StringUtils;
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class FreeTTSService extends BaseAudioService{
+public class FreeTTSService extends BaseAudioService {
 
     private final static String voiceName="kevin16";
 

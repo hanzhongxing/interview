@@ -1,5 +1,6 @@
-package com.interview.ai.service.audio;
+package com.interview.ai.service.audio.components;
 
+import com.interview.ai.service.audio.base.BaseAudioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.k2fsa.sherpa.onnx.*;
@@ -19,7 +20,7 @@ import java.io.InputStream;
 
 @Slf4j
 @Service
-public class SherpaOnnxASRService extends BaseAudioService{
+public class SherpaOnnxASRService extends BaseAudioService {
 
     private final static String resource_folder="sherpa";
     private final static String sense_voice_folder="sense_voice";
@@ -30,7 +31,7 @@ public class SherpaOnnxASRService extends BaseAudioService{
     private final static String decoder="decoder-epoch-99-avg-1.int8.onnx";
     private final static String joiner="joiner-epoch-99-avg-1.int8.onnx";
 
-    protected InputStream transcribe(InputStream audioStream) {
+    public InputStream transcribe(InputStream audioStream) {
         try {
             System.out.println("正在加载流式模型...");
             // 2. 配置流式 Transducer 模型
@@ -119,7 +120,7 @@ public class SherpaOnnxASRService extends BaseAudioService{
         return null;
     }
 
-    protected String transcribe(String filePath) {
+    public String transcribe(String filePath) {
         try {
             OfflineModelConfig modelConfig = OfflineModelConfig.builder()
                     .setSenseVoice(
