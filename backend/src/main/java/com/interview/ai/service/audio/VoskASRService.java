@@ -26,7 +26,6 @@ public class VoskASRService extends BaseAudioService{
     private final static String folder="vosk";
     private final static String dylib_name="libvosk.dylib";
     private final static String model_folder="model-small-cn-0.22";
-    private final static String en_model_folder="model-small-cn-0.22";
 
     @PostConstruct
     public void init(){
@@ -51,14 +50,12 @@ public class VoskASRService extends BaseAudioService{
             while ((nbytes = ais.read(buffer)) >= 0) {
                 // 4. 将音频数据送入识别器
                 if (recognizer.acceptWaveForm(buffer, nbytes)) {
-                    System.out.println(recognizer.getResult()); // 打印识别出的完整句子
+                    System.out.println(recognizer.getResult());
                 }else{
                     System.out.println(recognizer.getPartialResult());
                 }
             }
-
-            // 5. 获取最后剩余的结果
-            System.out.println(recognizer.getFinalResult());
+            return recognizer.getFinalResult();
         }catch (Exception e){
             log.error(e.getMessage(),e);
         }

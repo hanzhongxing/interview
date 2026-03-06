@@ -176,7 +176,7 @@
 		<dependency>
 			<groupId>com.alphacephei</groupId>
 			<artifactId>vosk</artifactId>
-			<version>0.3.45</version>
+			<version>0.3.32</version>
 		</dependency>
 	</dependencies>
 

@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class VoskASRServiceTest {
-    private final static String test_wav="https://github.com/hanzhongxing/interview/blob/main/0.wav";
+    private final static String test_wav="/Users/socket/Downloads/0.wav";
 
     @Resource
     VoskASRService voskASRService;
@@ -16,6 +16,7 @@ class VoskASRServiceTest {
     public void doTest(){
         String txt=voskASRService.transcribe(test_wav);
         System.out.println(txt);
+
     }
 
 }
