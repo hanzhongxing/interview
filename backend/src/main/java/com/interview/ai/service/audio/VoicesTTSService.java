@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 
 @Slf4j
 @Service
-public class VoicesService extends BaseAudioService{
+public class VoicesTTSService extends BaseAudioService{
 
     public InputStream generate(String text) {
         //EnUkDictionary.en_uk()

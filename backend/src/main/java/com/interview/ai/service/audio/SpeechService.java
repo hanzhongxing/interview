@@ -14,7 +14,7 @@ public class SpeechService {
     private FreeTTSService freeTTSService;
 
     @Resource
-    private VoicesService voicesService;
+    private VoicesTTSService voicesService;
 
     @Resource
     private OpenAiAudioService openAiAudioService;

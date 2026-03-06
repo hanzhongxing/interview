@@ -1,5 +1,6 @@
 package com.interview.ai.service.audio;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.interview.ai.model.LlmConfig;
 import com.interview.ai.service.LlmConfigService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +18,14 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class OpenAiAudioService extends BaseAudioService{
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private final LlmConfigService llmConfigService;
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .build();
-
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     public InputStream generate(String text) {
         LlmConfig config = llmConfigService.getActiveConfig(LlmConfig.ModelType.SPEECH)
