@@ -1,6 +1,6 @@
 package com.interview.ai.controller;
 
-import com.interview.ai.service.OpenAiAudioService;
+import com.interview.ai.service.audio.SpeechService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,7 +22,7 @@ import java.util.Objects;
 @Slf4j
 public class AudioController {
 
-    private final OpenAiAudioService audioService;
+    private final SpeechService speechService;
 
     @PostMapping("/speech")
     public ResponseEntity<StreamingResponseBody> generateSpeech(@RequestBody Map<String, String> payload) {
@@ -33,7 +32,7 @@ public class AudioController {
         }
 
         try {
-            InputStream inputStream = audioService.generateSpeechStream(text);
+            InputStream inputStream = speechService.generate(text,SpeechService.freetts);
 
             StreamingResponseBody responseBody = outputStream -> {
                 byte[] buffer = new byte[8192];
@@ -68,7 +67,7 @@ public class AudioController {
             Path tempFile = Files.createTempFile("voice_", ".webm");
             file.transferTo(tempFile);
 
-            String text = audioService.transcribe(Objects.requireNonNull(tempFile));
+            String text = speechService.transcribe(tempFile.toRealPath().toString());
 
             Files.deleteIfExists(tempFile);
             return ResponseEntity.ok(Map.of("text", text));

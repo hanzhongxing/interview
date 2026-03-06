@@ -1,6 +1,7 @@
-package com.interview.ai.service;
+package com.interview.ai.service.audio;
 
 import com.interview.ai.model.LlmConfig;
+import com.interview.ai.service.LlmConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class OpenAiAudioService {
+public class OpenAiAudioService extends BaseAudioService{
 
     private final LlmConfigService llmConfigService;
     private final OkHttpClient client = new OkHttpClient.Builder()
@@ -25,7 +26,7 @@ public class OpenAiAudioService {
 
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
-    public InputStream generateSpeechStream(String text) {
+    public InputStream generate(String text) {
         LlmConfig config = llmConfigService.getActiveConfig(LlmConfig.ModelType.SPEECH)
                 .orElseThrow(() -> new RuntimeException("TTS Model not configured"));
 

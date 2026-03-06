@@ -17,4 +17,7 @@ public abstract class BaseAudioService extends AbstractAudioService{
     protected InputStream transcribe(InputStream audioStream) {
         return null;
     }
+    protected String transcribe(String filePath) {
+        return null;
+    }
 }

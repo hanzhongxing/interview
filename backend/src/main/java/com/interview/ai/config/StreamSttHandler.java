@@ -1,6 +1,6 @@
 package com.interview.ai.config;
 
-import com.interview.ai.service.OpenAiAudioService;
+import com.interview.ai.service.audio.SpeechService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -10,7 +10,6 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class StreamSttHandler extends BinaryWebSocketHandler {
 
-    private final OpenAiAudioService audioService;
+    private final SpeechService speechService;
     private final Map<String, FileInfo> sessionFiles = new ConcurrentHashMap<>();
 
     private static class FileInfo {
@@ -72,7 +71,7 @@ public class StreamSttHandler extends BinaryWebSocketHandler {
         try {
             // Flush to ensure file has all data
             info.outputStream.flush();
-            String text = audioService.transcribe(info.file.toPath());
+            String text = speechService.transcribe(info.file.toPath().toString());
             if (text != null && !text.isEmpty()) {
                 session.sendMessage(new TextMessage(text));
             }
