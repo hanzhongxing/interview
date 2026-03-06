@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 import javax.sound.sampled.AudioFileFormat;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,7 +42,13 @@ public class FreeTTSService extends BaseAudioService {
             log.error("Voice not found");
             return null;
         }
-        String audioPath=speechPath+"temp_audio_"+System.currentTimeMillis();
+        String audioPath=speechPath+"/temp_audio/free_tts_"+System.currentTimeMillis();
+        try {
+            Files.createFile(Path.of(audioPath));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return null;
+        }
         SingleFileAudioPlayer audioPlayer =new SingleFileAudioPlayer(audioPath, AudioFileFormat.Type.WAVE);
 
         Voice voice = voiceManager.getVoice(voiceName);
