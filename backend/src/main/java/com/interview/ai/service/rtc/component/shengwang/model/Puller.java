@@ -2,7 +2,7 @@ package com.interview.ai.service.rtc.component.shengwang.model;
 
 public class Puller {
     private String channelId;
-    private Integer uid;
+    private String uid;
     private String token;
     private String appid;
     private int channelSource;
@@ -15,11 +15,11 @@ public class Puller {
         this.channelId = channelId;
     }
 
-    public Integer getUid() {
+    public String getUid() {
         return uid;
     }
 
-    public void setUid(Integer uid) {
+    public void setUid(String uid) {
         this.uid = uid;
     }
 

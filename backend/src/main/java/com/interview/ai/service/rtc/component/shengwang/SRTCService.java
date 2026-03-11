@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.bouncycastle.asn1.x500.style.RFC4519Style.uid;
+
 @Slf4j
 @Service
 public class SRTCService implements CustomRTCService {
@@ -28,6 +30,8 @@ public class SRTCService implements CustomRTCService {
     public final static int default_channels=1;
 
     private final static String AGORA_APP_ID="AGORA_APP_ID";
+    private final static String AGORA_APP_TOKEN="token";
+    private final static String DEFAULT_USER_ID="101";
     private static AgoraService service;
 
     @PostConstruct
@@ -70,18 +74,13 @@ public class SRTCService implements CustomRTCService {
                     logger.info("startAgoraSdkConn has init roomId=" + roomId);
                     return true;
                 }
-                Puller puller = createServerPuller(roomId);
-                if (puller == null) {
-                    logger.error("startAgoraSdkConn createServerPuller error roomId:{}", roomId);
-                    return false;
-                }
                 AgoraRtcConn agoraRtcConn = service.agoraRtcConnCreate(null);
                 RtcConnObserver connObserver = new RtcConnObserver();
                 agoraRtcConn.registerObserver(connObserver);
                 LocalUserObserver localUserObserver = new LocalUserObserver(roomId);
                 agoraRtcConn.getLocalUser().registerObserver(localUserObserver);
                 AudioFrameObserver pcmFrameObserver = new AudioFrameObserver(roomId);
-                agoraRtcConn.connect(puller.getToken(), roomId, puller.getUid() + "");
+                agoraRtcConn.connect(AGORA_APP_TOKEN,roomId,DEFAULT_USER_ID);
                 Boolean flg=initAudioParams(roomId,agoraRtcConn);
                 if(!flg){
                     logger.info("initAudioParams error roomId:{}",roomId);
@@ -183,10 +182,5 @@ public class SRTCService implements CustomRTCService {
             logger.error(e.getMessage(),e);
         }
         return false;
-    }
-
-    // todo
-    private Puller createServerPuller(String roomId){
-        return new Puller();
     }
 }
