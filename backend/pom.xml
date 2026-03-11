@@ -178,6 +178,20 @@
 			<artifactId>vosk</artifactId>
 			<version>0.3.32</version>
 		</dependency>
+
+		<!--声网-->
+		<dependency>
+			<groupId>io.agora.rtc</groupId>
+			<artifactId>linux-sdk</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+
+		<!--腾讯 云视-->
+		<dependency>
+			<groupId>com.tencentcloudapi</groupId>
+			<artifactId>tencentcloud-sdk-java</artifactId>
+			<version>3.1.1000</version>
+		</dependency>
 	</dependencies>
 
 	<build>
