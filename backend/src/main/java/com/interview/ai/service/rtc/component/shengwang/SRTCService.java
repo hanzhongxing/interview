@@ -3,7 +3,6 @@ package com.interview.ai.service.rtc.component.shengwang;
 import com.interview.ai.service.rtc.component.CustomRTCService;
 import com.interview.ai.service.rtc.component.shengwang.model.AudioFrameObserver;
 import com.interview.ai.service.rtc.component.shengwang.model.LocalUserObserver;
-import com.interview.ai.service.rtc.component.shengwang.model.Puller;
 import com.interview.ai.service.rtc.component.shengwang.model.RtcConnObserver;
 import io.agora.rtc.AgoraRtcConn;
 import io.agora.rtc.AgoraService;
@@ -18,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.bouncycastle.asn1.x500.style.RFC4519Style.uid;
 
 @Slf4j
 @Service
