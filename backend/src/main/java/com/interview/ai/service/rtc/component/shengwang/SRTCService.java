@@ -1,9 +1,9 @@
 package com.interview.ai.service.rtc.component.shengwang;
 
 import com.interview.ai.service.rtc.component.CustomRTCService;
-import com.interview.ai.service.rtc.component.shengwang.model.AudioFrameObserver;
-import com.interview.ai.service.rtc.component.shengwang.model.LocalUserObserver;
-import com.interview.ai.service.rtc.component.shengwang.model.RtcConnObserver;
+import com.interview.ai.service.rtc.component.shengwang.observer.AudioFrameObserver;
+import com.interview.ai.service.rtc.component.shengwang.observer.LocalUserObserver;
+import com.interview.ai.service.rtc.component.shengwang.observer.RtcConnObserver;
 import io.agora.rtc.AgoraRtcConn;
 import io.agora.rtc.AgoraService;
 import io.agora.rtc.AgoraServiceConfig;

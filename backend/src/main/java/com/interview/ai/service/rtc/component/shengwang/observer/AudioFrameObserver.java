@@ -1,4 +1,4 @@
-package com.interview.ai.service.rtc.component.shengwang.model;
+package com.interview.ai.service.rtc.component.shengwang.observer;
 
 import io.agora.rtc.AgoraLocalUser;
 import io.agora.rtc.AudioFrame;

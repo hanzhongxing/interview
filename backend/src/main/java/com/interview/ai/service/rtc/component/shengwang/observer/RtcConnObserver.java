@@ -1,4 +1,4 @@
-package com.interview.ai.service.rtc.component.shengwang.model;
+package com.interview.ai.service.rtc.component.shengwang.observer;
 
 import io.agora.rtc.AgoraRtcConn;
 import io.agora.rtc.DefaultRtcConnObserver;

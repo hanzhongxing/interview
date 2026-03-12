@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@Deprecated
 public class TRTCService implements CustomRTCService {
     private final static String SECRET_ID="SECRET_ID";
     private final static String SECRET_KEY="SECRET_KEY";
@@ -24,8 +25,25 @@ public class TRTCService implements CustomRTCService {
     }
 
 
+
     @Override
     public boolean startRoom(String roomId) {
+//        TrtcClient client = new TrtcClient(credential, "ap-guangzhou");
+//
+//        var client = client.createClient({sdkAppId: 1400000000, userId: 'user_id'}); // 替换为你的SDKAppID和UserID
+//        client.setListener({
+//                onClientRoleChanged: function (msg) {
+//            console.log('角色变更', msg);
+//        },
+//        onClientEvent: function (type, data, detail) {
+//            if (type === 'client-publish-audio') { // 当有音频流发布时触发
+//                console.log('有音频流发布', data, detail);
+//            } else if (type === 'client-subscribe-audio') { // 当订阅音频流时触发
+//                console.log('订阅音频流', data, detail);
+//            }
+//        }
+//});
+//        client.join({roomId: 12345});
         return true;
     }
 
